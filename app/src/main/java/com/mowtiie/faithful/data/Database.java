@@ -11,10 +11,10 @@ public class Database extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "faithful.db";
     private static final int DATABASE_VERSION = 1;
 
-    private static final String TABLE_THOUGHT = "thoughts";
-    private static final String COLUMN_THOUGHT_ID = "id";
-    private static final String COLUMN_THOUGHT_CONTENT = "content";
-    private static final String COLUMN_THOUGHT_TIMESTAMP = "timestamp";
+    public static final String TABLE_THOUGHT = "thoughts";
+    public static final String COLUMN_THOUGHT_ID = "id";
+    public static final String COLUMN_THOUGHT_CONTENT = "content";
+    public static final String COLUMN_THOUGHT_TIMESTAMP = "timestamp";
 
     public Database(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

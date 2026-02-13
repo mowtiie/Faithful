@@ -8,11 +8,11 @@ public class Thought implements Serializable {
     private String content;
     private long timestamp;
 
-    private Thought() {
+    public Thought() {
         // Just a empty constructor (can be useful for some frameworks)
     }
 
-    private Thought(String id, String content, long timestamp) {
+    public Thought(String id, String content, long timestamp) {
         this.id = id;
         this.content = content;
         this.timestamp = timestamp;
