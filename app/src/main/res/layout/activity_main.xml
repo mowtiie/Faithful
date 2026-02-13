@@ -21,6 +21,8 @@
             app:title="@string/app_name"
             app:titleTextColor="?attr/colorOnSurface"
             app:titleCentered="true"
+            app:navigationIcon="@drawable/ic_outlined_settings"
+            app:navigationIconTint="?attr/colorOnSurfaceVariant"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </com.google.android.material.appbar.AppBarLayout>
