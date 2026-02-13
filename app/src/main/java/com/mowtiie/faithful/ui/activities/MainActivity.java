@@ -1,6 +1,8 @@
 package com.mowtiie.faithful.ui.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +28,11 @@ public class MainActivity extends FaithfulActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        binding.toolbar.setNavigationOnClickListener(v -> {
+            Intent settingIntent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(settingIntent);
         });
     }
 

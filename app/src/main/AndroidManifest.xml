@@ -13,8 +13,8 @@
         android:theme="@style/Theme.Faithful">
         <activity
             android:name=".ui.activities.SettingsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_settings" />
+            android:parentActivityName=".ui.activities.MainActivity"
+            android:exported="false"/>
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="true">
