@@ -25,6 +25,7 @@ import com.mowtiie.faithful.data.thought.Thought;
 import com.mowtiie.faithful.data.thought.ThoughtRepository;
 import com.mowtiie.faithful.databinding.ActivityMainBinding;
 import com.mowtiie.faithful.ui.adapters.ThoughtAdapter;
+import com.mowtiie.faithful.util.DateTimeUtil;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -125,11 +126,31 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     @Override
     public void OnClick(int position) {
+        Thought thought = thoughts.get(position);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(DateTimeUtil.getStringDate(thought.getTimestamp()))
+                .setIcon(R.drawable.ic_thought)
+                .setMessage(thought.getContent())
+                .setPositiveButton(R.string.dialog_button_close, null);
 
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
     public void OnDeleteClick(int position) {
+        Thought thought = thoughts.get(position);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_delete_thought)
+                .setIcon(R.drawable.ic_delete)
+                .setMessage(R.string.dialog_message_delete_thought)
+                .setNegativeButton(R.string.dialog_button_cancel, null)
+                .setPositiveButton(R.string.dialog_button_delete, (dialogInterface, i) -> {
+                    thoughtRepository.delete(thought.getId());
+                    refreshList();
+                });
 
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
