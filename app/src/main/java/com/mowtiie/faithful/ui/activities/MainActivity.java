@@ -1,5 +1,6 @@
 package com.mowtiie.faithful.ui.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,18 +15,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mowtiie.faithful.R;
+import com.mowtiie.faithful.data.thought.Thought;
+import com.mowtiie.faithful.data.thought.ThoughtRepository;
 import com.mowtiie.faithful.databinding.ActivityMainBinding;
+import com.mowtiie.faithful.ui.adapters.ThoughtAdapter;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.UUID;
 
-public class MainActivity extends FaithfulActivity {
+public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Listener {
 
     private ActivityMainBinding binding;
+    private ThoughtRepository thoughtRepository;
+    private ArrayList<Thought> thoughts;
+    private ThoughtAdapter thoughtAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +50,31 @@ public class MainActivity extends FaithfulActivity {
             return insets;
         });
 
+        thoughts = new ArrayList<>();
+        thoughtRepository = new ThoughtRepository(this);
+        thoughts.addAll(thoughtRepository.getAll());
+        thoughtAdapter = new ThoughtAdapter(this, this, thoughts);
+
+        binding.emptyIndicator.setVisibility(thoughts.isEmpty() ? View.VISIBLE : View.GONE);
+        binding.thoughtsList.setLayoutManager(new LinearLayoutManager(this));
+        binding.thoughtsList.setAdapter(thoughtAdapter);
+
         binding.toolbar.setNavigationOnClickListener(v -> {
             Intent settingIntent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(settingIntent);
         });
 
         binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void refreshList() {
+        thoughts.clear();
+        thoughts.addAll(thoughtRepository.getAll());
+
+        binding.emptyIndicator.setVisibility(thoughts.isEmpty() ? View.VISIBLE : View.GONE);
+        binding.thoughtsList.setVisibility(thoughts.isEmpty() ? View.GONE : View.VISIBLE);
+        thoughtAdapter.notifyDataSetChanged();
     }
 
     private void showNewThoughtDialog() {
@@ -68,6 +97,14 @@ public class MainActivity extends FaithfulActivity {
                 thoughtContentLayout.setError(getString(R.string.field_thought_content_empty_error));
                 return;
             }
+
+            Thought thought = new Thought();
+            thought.setId(UUID.randomUUID().toString());
+            thought.setContent(thoughtContent);
+            thought.setTimestamp(System.currentTimeMillis());
+            thoughtRepository.add(thought);
+            refreshList();
+            newThoughtDialog.dismiss();
         }));
         newThoughtDialog.show();
 
@@ -84,5 +121,15 @@ public class MainActivity extends FaithfulActivity {
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
+    }
+
+    @Override
+    public void OnClick(int position) {
+
+    }
+
+    @Override
+    public void OnDeleteClick(int position) {
+
     }
 }
