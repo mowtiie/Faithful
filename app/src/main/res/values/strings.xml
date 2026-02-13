@@ -3,4 +3,8 @@
     <string name="empty_indicator_idea_list">No thoughts yet.</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="toolbar_settings">Settings</string>
+    <string name="field_thought_content">Content</string>
+    <string name="dialog_new_thought">New Thought</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_confirm">Confirm</string>
 </resources>

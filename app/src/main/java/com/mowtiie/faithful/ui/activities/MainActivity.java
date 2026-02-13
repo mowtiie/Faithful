@@ -2,14 +2,19 @@ package com.mowtiie.faithful.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.databinding.ActivityMainBinding;
 
@@ -34,6 +39,25 @@ public class MainActivity extends FaithfulActivity {
             Intent settingIntent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(settingIntent);
         });
+
+        binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
+    }
+
+    private void showNewThoughtDialog() {
+        View newThoughtDialog = LayoutInflater.from(this).inflate(R.layout.dialog_new_thought, null, false);
+
+        TextInputLayout thoughtContentLayout = newThoughtDialog.findViewById(R.id.field_thought_content_layout);
+        TextInputEditText thoughtContentText = newThoughtDialog.findViewById(R.id.field_thought_content_text);
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_new_thought)
+                .setIcon(R.drawable.ic_thought)
+                .setView(newThoughtDialog)
+                .setNegativeButton(R.string.dialog_button_cancel, null)
+                .setPositiveButton(R.string.dialog_button_confirm, null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
