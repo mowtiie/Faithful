@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Faithful</string>
     <string name="empty_indicator_idea_list">No thoughts yet.</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="toolbar_settings">Settings</string>
 </resources>

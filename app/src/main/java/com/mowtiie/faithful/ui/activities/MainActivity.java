@@ -1,4 +1,4 @@
-package com.mowtiie.faithful;
+package com.mowtiie.faithful.ui.activities;
 
 import android.os.Bundle;
 
@@ -8,6 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
