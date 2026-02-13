@@ -51,4 +51,13 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/write_thought"
+        android:src="@drawable/ic_write"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
