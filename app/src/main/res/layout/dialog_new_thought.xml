@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingEnd="24dp"
     android:paddingStart="24dp"
@@ -11,6 +11,8 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/field_thought_content_layout"
         android:hint="@string/field_thought_content"
+        app:helperTextEnabled="true"
+        app:helperText="@string/field_thought_helper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

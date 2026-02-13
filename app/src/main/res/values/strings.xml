@@ -4,6 +4,8 @@
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="toolbar_settings">Settings</string>
     <string name="field_thought_content">Content</string>
+    <string name="field_thought_content_empty_error">This field is required</string>
+    <string name="field_thought_helper">*required</string>
     <string name="dialog_new_thought">New Thought</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="dialog_button_confirm">Confirm</string>

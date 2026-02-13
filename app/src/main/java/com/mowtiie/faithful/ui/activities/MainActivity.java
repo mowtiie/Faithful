@@ -1,5 +1,6 @@
 package com.mowtiie.faithful.ui.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +18,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.databinding.ActivityMainBinding;
+
+import java.util.Objects;
 
 public class MainActivity extends FaithfulActivity {
 
@@ -44,20 +47,27 @@ public class MainActivity extends FaithfulActivity {
     }
 
     private void showNewThoughtDialog() {
-        View newThoughtDialog = LayoutInflater.from(this).inflate(R.layout.dialog_new_thought, null, false);
+        View newThoughtDialogView = LayoutInflater.from(this).inflate(R.layout.dialog_new_thought, null, false);
 
-        TextInputLayout thoughtContentLayout = newThoughtDialog.findViewById(R.id.field_thought_content_layout);
-        TextInputEditText thoughtContentText = newThoughtDialog.findViewById(R.id.field_thought_content_text);
+        TextInputLayout thoughtContentLayout = newThoughtDialogView.findViewById(R.id.field_thought_content_layout);
+        TextInputEditText thoughtContentText = newThoughtDialogView.findViewById(R.id.field_thought_content_text);
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_new_thought)
                 .setIcon(R.drawable.ic_thought)
-                .setView(newThoughtDialog)
+                .setView(newThoughtDialogView)
                 .setNegativeButton(R.string.dialog_button_cancel, null)
                 .setPositiveButton(R.string.dialog_button_confirm, null);
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        AlertDialog newThoughtDialog = builder.create();
+        newThoughtDialog.setOnShowListener(dialog -> newThoughtDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String thoughtContent = Objects.requireNonNull(thoughtContentText.getText()).toString();
+            if (thoughtContent.isEmpty()) {
+                thoughtContentLayout.setError(getString(R.string.field_thought_content_empty_error));
+                return;
+            }
+        }));
+        newThoughtDialog.show();
     }
 
     @Override
