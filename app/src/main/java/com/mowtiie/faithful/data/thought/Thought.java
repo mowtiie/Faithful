@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Thought implements Serializable {
 
-    private int id;
+    private String id;
     private String content;
     private long timestamp;
 
@@ -12,13 +12,13 @@ public class Thought implements Serializable {
         // Just a empty constructor (can be useful for some frameworks)
     }
 
-    private Thought(int id, String content, long timestamp) {
+    private Thought(String id, String content, long timestamp) {
         this.id = id;
         this.content = content;
         this.timestamp = timestamp;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -30,7 +30,7 @@ public class Thought implements Serializable {
         return timestamp;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
