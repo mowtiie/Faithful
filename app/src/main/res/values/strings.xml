@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Faithful</string>
+    <string name="empty_indicator_idea_list">No thoughts yet.</string>
 </resources>
