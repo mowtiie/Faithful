@@ -11,7 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FaithfulActivity {
 
     private ActivityMainBinding binding;
 
