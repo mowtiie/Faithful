@@ -1,10 +1,12 @@
 package com.mowtiie.faithful.ui.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -68,6 +70,14 @@ public class MainActivity extends FaithfulActivity {
             }
         }));
         newThoughtDialog.show();
+
+        thoughtContentText.requestFocus();
+        thoughtContentText.postDelayed(() -> {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputMethodManager != null) {
+                inputMethodManager.showSoftInput(thoughtContentText, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 100);
     }
 
     @Override
