@@ -19,6 +19,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/field_thought_content_text"
             android:inputType="textAutoComplete|textAutoCorrect|textLongMessage|textMultiLine"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </com.google.android.material.textfield.TextInputLayout>
