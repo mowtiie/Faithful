@@ -1,22 +1,35 @@
 package com.mowtiie.faithful.ui.activities;
 
+import android.app.Dialog;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.color.DynamicColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
 import com.mowtiie.faithful.data.thought.Contrast;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
 import com.mowtiie.faithful.util.SettingUtil;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class SettingsActivity extends FaithfulActivity {
 
@@ -58,6 +71,9 @@ public class SettingsActivity extends FaithfulActivity {
 
         private SettingUtil settingUtil;
 
+        private Preference appLicense;
+        private Preference appVersion;
+
         private ListPreference listTheme;
         private ListPreference listContrast;
 
@@ -68,6 +84,14 @@ public class SettingsActivity extends FaithfulActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.settings, rootKey);
             setPreferences();
+
+            try {
+                PackageManager packageManager = requireContext().getPackageManager();
+                PackageInfo packageInfo = packageManager.getPackageInfo(requireContext().getPackageName(), 0);
+                appVersion.setSummary(packageInfo.versionName);
+            } catch (PackageManager.NameNotFoundException e) {
+                Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
 
             listTheme.setEntries(Theme.getValues());
             listTheme.setEntryValues(Theme.getValues());
@@ -111,6 +135,11 @@ public class SettingsActivity extends FaithfulActivity {
                 requireActivity().recreate();
                 return true;
             });
+
+            appLicense.setOnPreferenceClickListener(preference -> {
+                showLicenseDialog();
+                return true;
+            });
         }
 
         private void setPreferences() {
@@ -121,6 +150,36 @@ public class SettingsActivity extends FaithfulActivity {
 
             switchDynamicColors = findPreference("dynamic_colors");
             switchScreenPrivacy = findPreference("screen_privacy");
+
+            appLicense = findPreference("app_license");
+            appVersion = findPreference("app_version");
+        }
+
+        private void showLicenseDialog() {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.preference_app_license)
+                    .setIcon(R.drawable.ic_license)
+                    .setMessage(readLicenseFromAssets())
+                    .setPositiveButton(R.string.dialog_button_close, null);
+
+            Dialog dialog = builder.create();
+            dialog.show();
+        }
+
+        private String readLicenseFromAssets() {
+            StringBuilder stringBuilder = new StringBuilder();
+            AssetManager assetManager = requireContext().getAssets();
+
+            try (InputStream inputStream = assetManager.open("license.txt")) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line).append("\n");
+                }
+            } catch (IOException e) {
+                Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            return stringBuilder.toString();
         }
     }
 }
