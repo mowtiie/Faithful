@@ -38,4 +38,12 @@ public class SettingUtil {
     public void setDynamicColors(boolean value) {
         sharedPreferences.edit().putBoolean("dynamic_colors", value).apply();
     }
+
+    public void setScreenPrivacy(boolean value) {
+        sharedPreferences.edit().putBoolean("screen_privacy", value).apply();
+    }
+
+    public boolean isScreenPrivacyEnabled() {
+        return sharedPreferences.getBoolean("screen_privacy", false);
+    }
 }
