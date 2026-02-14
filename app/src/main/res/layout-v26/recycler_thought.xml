@@ -38,6 +38,7 @@
             android:textColor="?attr/colorOnSurface"
             android:maxLines="5"
             android:ellipsize="end"
+            android:justificationMode="inter_character"
             android:text="@string/lorem_ipsum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
