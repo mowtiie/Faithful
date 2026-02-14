@@ -62,6 +62,7 @@ public class SettingsActivity extends FaithfulActivity {
         private ListPreference listContrast;
 
         private SwitchPreferenceCompat switchDynamicColors;
+        private SwitchPreferenceCompat switchScreenPrivacy;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -103,6 +104,13 @@ public class SettingsActivity extends FaithfulActivity {
                 requireActivity().recreate();
                 return true;
             });
+
+            switchScreenPrivacy.setChecked(settingUtil.isScreenPrivacyEnabled());
+            switchScreenPrivacy.setOnPreferenceChangeListener((preference, isChecked) -> {
+                settingUtil.setScreenPrivacy((boolean) isChecked);
+                requireActivity().recreate();
+                return true;
+            });
         }
 
         private void setPreferences() {
@@ -112,6 +120,7 @@ public class SettingsActivity extends FaithfulActivity {
             listContrast = findPreference("contrast");
 
             switchDynamicColors = findPreference("dynamic_colors");
+            switchScreenPrivacy = findPreference("screen_privacy");
         }
     }
 }

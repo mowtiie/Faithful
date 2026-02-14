@@ -2,6 +2,7 @@ package com.mowtiie.faithful.ui.activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +23,13 @@ public abstract class FaithfulActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         settingUtil = new SettingUtil(this);
         super.onCreate(savedInstanceState);
+
+        if (settingUtil.isScreenPrivacyEnabled()) {
+            getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE
+            );
+        }
 
         String theme = settingUtil.getTheme();
         if (theme.equals(Theme.SYSTEM.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
