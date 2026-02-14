@@ -1,2 +1,14 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Appearance"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:key="theme"
+            android:title="@string/settings_list_theme"
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -1,11 +1,16 @@
 <resources>
     <string name="app_name">Faithful</string>
+    
     <string name="empty_indicator_idea_list">No thoughts yet.</string>
+    
     <string name="title_activity_settings">SettingsActivity</string>
+    
     <string name="toolbar_settings">Settings</string>
+    
     <string name="field_thought_content">Content</string>
     <string name="field_thought_content_empty_error">This field is required</string>
     <string name="field_thought_helper">*required</string>
+    
     <string name="dialog_new_thought">New Thought</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="dialog_button_confirm">Confirm</string>
@@ -13,5 +18,9 @@
     <string name="dialog_button_close">Close</string>
     <string name="dialog_title_delete_thought">Delete thought?</string>
     <string name="dialog_message_delete_thought">You are about to delete this thought, this action cannot be undone.</string>
+    
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</string>
+    
+    <string name="setting_category_appearance">Appearance</string>
+    <string name="settings_list_theme">Theme</string>
 </resources>
