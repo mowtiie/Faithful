@@ -30,4 +30,12 @@ public class SettingUtil {
     public void setContrast(String value) {
         sharedPreferences.edit().putString("Contrast", value).apply();
     }
+
+    public boolean isDynamicColors() {
+        return sharedPreferences.getBoolean("dynamic_colors", false);
+    }
+
+    public void setDynamicColors(boolean value) {
+        sharedPreferences.edit().putBoolean("dynamic_colors", value).apply();
+    }
 }
