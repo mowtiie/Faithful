@@ -14,6 +14,13 @@
             android:key="contrast"
             android:title="@string/setting_list_contrast"
             app:iconSpaceReserved="false"/>
+
+        <SwitchPreferenceCompat
+            android:key="dynamic_colors"
+            android:widgetLayout="@layout/view_setting_switch"
+            app:iconSpaceReserved="false"
+            android:title="@string/setting_switch_dynamic_colors_title"
+            android:summary="@string/setting_switch_dynamic_colors_summary"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

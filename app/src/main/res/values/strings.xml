@@ -24,4 +24,6 @@
     <string name="setting_category_appearance">Appearance</string>
     <string name="setting_list_theme">Theme</string>
     <string name="setting_list_contrast">Contrast</string>
+    <string name="setting_switch_dynamic_colors_title">Dynamic Colors</string>
+    <string name="setting_switch_dynamic_colors_summary">Apply colors from your wallpaper to the application theme</string>
 </resources>
