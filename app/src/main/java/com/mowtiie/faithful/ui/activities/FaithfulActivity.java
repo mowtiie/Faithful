@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.google.android.material.color.DynamicColors;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
 import com.mowtiie.faithful.data.thought.Contrast;
@@ -32,6 +33,8 @@ public abstract class FaithfulActivity extends AppCompatActivity {
         if (contrast.equals(Contrast.LOW.value)) setTheme(R.style.Theme_Faithful);
         if (contrast.equals(Contrast.MEDIUM.value)) setTheme(R.style.Theme_Faithful_MediumContrast);
         if (contrast.equals(Contrast.HIGH.value)) setTheme(R.style.Theme_Faithful_HighContrast);
+
+        if (settingUtil.isDynamicColors()) DynamicColors.applyToActivityIfAvailable(this);
     }
 
     @Override

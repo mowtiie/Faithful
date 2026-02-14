@@ -9,7 +9,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.material.color.DynamicColors;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
 import com.mowtiie.faithful.data.thought.Contrast;
@@ -59,6 +61,8 @@ public class SettingsActivity extends FaithfulActivity {
         private ListPreference listTheme;
         private ListPreference listContrast;
 
+        private SwitchPreferenceCompat switchDynamicColors;
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.settings, rootKey);
@@ -91,6 +95,14 @@ public class SettingsActivity extends FaithfulActivity {
                 settingUtil.setContrast(selectedContrast);
                 return true;
             });
+
+            switchDynamicColors.setVisible(DynamicColors.isDynamicColorAvailable());
+            switchDynamicColors.setChecked(settingUtil.isDynamicColors());
+            switchDynamicColors.setOnPreferenceChangeListener((preference, isChecked) -> {
+                settingUtil.setDynamicColors((boolean) isChecked);
+                requireActivity().recreate();
+                return true;
+            });
         }
 
         private void setPreferences() {
@@ -98,6 +110,8 @@ public class SettingsActivity extends FaithfulActivity {
 
             listTheme = findPreference("theme");
             listContrast = findPreference("contrast");
+
+            switchDynamicColors = findPreference("dynamic_colors");
         }
     }
 }
