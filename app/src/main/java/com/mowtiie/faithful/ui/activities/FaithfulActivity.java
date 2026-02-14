@@ -13,6 +13,7 @@ import com.google.android.material.color.DynamicColors;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
 import com.mowtiie.faithful.data.thought.Contrast;
+import com.mowtiie.faithful.util.NotificationUtil;
 import com.mowtiie.faithful.util.SettingUtil;
 
 public abstract class FaithfulActivity extends AppCompatActivity {
@@ -30,6 +31,8 @@ public abstract class FaithfulActivity extends AppCompatActivity {
                     WindowManager.LayoutParams.FLAG_SECURE
             );
         }
+
+        NotificationUtil.createChannels(this);
 
         String theme = settingUtil.getTheme();
         if (theme.equals(Theme.SYSTEM.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);

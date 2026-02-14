@@ -21,8 +21,12 @@
     <string name="dialog_button_confirm">Confirm</string>
     <string name="dialog_button_delete">Delete</string>
     <string name="dialog_button_close">Close</string>
+    <string name="dialog_button_grant">Grant</string>
     <string name="dialog_title_delete_thought">Delete thought?</string>
     <string name="dialog_message_delete_thought">You are about to delete this thought, this action cannot be undone.</string>
+
+    <string name="toast_notification_permission_denied">Notification permission denied</string>
+    <string name="snack_bar_permission_notifications">Deadlines requires notification permissions to work.</string>
 
     <string name="placeholder_thought_timestamp">02/14/2026 1:40 AM</string>
 
