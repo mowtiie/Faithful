@@ -153,4 +153,17 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    @Override
+    public void OnShareClick(int position) {
+        Thought thought = thoughts.get(position);
+
+        Intent sendIntent = new Intent();
+        sendIntent.setType("text/plain");
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, thought.getContent());
+
+        Intent shareIntent = Intent.createChooser(sendIntent, null);
+        startActivity(shareIntent);
+    }
 }

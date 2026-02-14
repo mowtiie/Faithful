@@ -35,6 +35,7 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
     public interface Listener {
         void OnClick(int position);
         void OnDeleteClick(int position);
+        void OnShareClick(int position);
     }
 
     @NonNull
@@ -50,6 +51,7 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
         holder.bind(thought, settingUtil);
         holder.itemView.setOnClickListener(v -> listener.OnClick(position));
         holder.thoughtDelete.setOnClickListener(v -> listener.OnDeleteClick(position));
+        holder.thoughtShare.setOnClickListener(v -> listener.OnShareClick(position));
     }
 
     @Override
@@ -61,7 +63,7 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
 
         MaterialCardView thoughtParent;
         MaterialTextView thoughtTimeStamp, thoughtContent;
-        MaterialButton thoughtDelete;
+        MaterialButton thoughtDelete, thoughtShare;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -69,6 +71,7 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
             thoughtTimeStamp = itemView.findViewById(R.id.recycler_thought_timestamp);
             thoughtContent = itemView.findViewById(R.id.recycler_thought_content);
             thoughtDelete = itemView.findViewById(R.id.recycler_thought_delete);
+            thoughtShare = itemView.findViewById(R.id.recycler_thought_share);
         }
 
         public void bind(Thought thought, SettingUtil settingUtil) {
