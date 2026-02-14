@@ -8,7 +8,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
+import com.mowtiie.faithful.data.thought.Contrast;
 import com.mowtiie.faithful.util.SettingUtil;
 
 public abstract class FaithfulActivity extends AppCompatActivity {
@@ -25,6 +27,11 @@ public abstract class FaithfulActivity extends AppCompatActivity {
         if (theme.equals(Theme.BATTERY_SAVING.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
         if (theme.equals(Theme.LIGHT.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         if (theme.equals(Theme.DARK.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+
+        String contrast = settingUtil.getContrast();
+        if (contrast.equals(Contrast.LOW.value)) setTheme(R.style.Theme_Faithful);
+        if (contrast.equals(Contrast.MEDIUM.value)) setTheme(R.style.Theme_Faithful_MediumContrast);
+        if (contrast.equals(Contrast.HIGH.value)) setTheme(R.style.Theme_Faithful_HighContrast);
     }
 
     @Override

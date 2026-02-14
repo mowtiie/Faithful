@@ -12,6 +12,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
+import com.mowtiie.faithful.data.thought.Contrast;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
 import com.mowtiie.faithful.util.SettingUtil;
 
@@ -56,6 +57,7 @@ public class SettingsActivity extends FaithfulActivity {
         private SettingUtil settingUtil;
 
         private ListPreference listTheme;
+        private ListPreference listContrast;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -75,12 +77,27 @@ public class SettingsActivity extends FaithfulActivity {
                 settingUtil.setTheme(selectedTheme);
                 return true;
             });
+
+            listContrast.setEntries(Contrast.getValues());
+            listContrast.setEntryValues(Contrast.getValues());
+            listContrast.setSummary(settingUtil.getContrast());
+            listContrast.setValue(settingUtil.getContrast());
+            listContrast.setOnPreferenceChangeListener((preference, newValue) -> {
+                String selectedContrast = (String) newValue;
+                if (selectedContrast.equals(Contrast.LOW.value)) requireActivity().setTheme(R.style.Theme_Faithful);
+                if (selectedContrast.equals(Contrast.MEDIUM.value)) requireActivity().setTheme(R.style.Theme_Faithful_MediumContrast);
+                if (selectedContrast.equals(Contrast.HIGH.value)) requireActivity().setTheme(R.style.Theme_Faithful_HighContrast);
+                requireActivity().recreate();
+                settingUtil.setContrast(selectedContrast);
+                return true;
+            });
         }
 
         private void setPreferences() {
             settingUtil = new SettingUtil(requireContext());
 
             listTheme = findPreference("theme");
+            listContrast = findPreference("contrast");
         }
     }
 }
