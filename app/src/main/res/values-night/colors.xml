@@ -1,4 +1,5 @@
 <resources>
+    <color name="snow">#fffafa</color>
     <color name="md_theme_primary">#FFB0D0</color>
     <color name="md_theme_onPrimary">#531D38</color>
     <color name="md_theme_primaryContainer">#6E334F</color>

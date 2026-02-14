@@ -71,6 +71,9 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         });
 
         hasNotificationPermission();
+        if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
+            showNewThoughtDialog();
+        }
 
         thoughts = new ArrayList<>();
         thoughtRepository = new ThoughtRepository(this);
