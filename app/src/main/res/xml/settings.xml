@@ -7,7 +7,12 @@
 
         <ListPreference
             android:key="theme"
-            android:title="@string/settings_list_theme"
+            android:title="@string/setting_list_theme"
+            app:iconSpaceReserved="false"/>
+
+        <ListPreference
+            android:key="contrast"
+            android:title="@string/setting_list_contrast"
             app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
