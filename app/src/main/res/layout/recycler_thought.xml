@@ -13,28 +13,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/recycler_thought_timestamp"
-            android:text="02/14/2026 1:40 AM"
+            android:text="@string/placeholder_thought_timestamp"
             android:textAppearance="?attr/textAppearanceTitleLarge"
-            android:paddingTop="16dp"
-            android:paddingStart="16dp"
+            android:layout_marginBottom="12dp"
             android:textColor="?attr/colorPrimary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/recycler_thought_delete"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            style="?attr/materialIconButtonFilledStyle"
-            app:icon="@drawable/ic_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -44,10 +34,6 @@
             app:layout_constraintTop_toBottomOf="@id/recycler_thought_timestamp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:paddingTop="21dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="16dp"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOnSurface"
             android:maxLines="5"
@@ -56,5 +42,36 @@
             android:text="@string/lorem_ipsum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/recycler_thought_share"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:text="@string/button_share"
+                android:layout_marginEnd="8dp"
+                android:textColor="?attr/colorOnPrimary"
+                android:backgroundTint="?attr/colorPrimary"
+                app:icon="@drawable/ic_share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/recycler_thought_delete"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:text="@string/button_delete"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:textColor="?attr/colorError"
+                app:iconTint="?attr/colorError"
+                app:icon="@drawable/ic_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
