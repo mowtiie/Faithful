@@ -23,4 +23,16 @@
             android:summary="@string/setting_switch_dynamic_colors_summary"/>
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Security &amp; Privacy"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:key="screen_privacy"
+            android:title="@string/setting_switch_screen_privacy_title"
+            android:summary="@string/setting_switch_screen_privacy_summary"
+            android:widgetLayout="@layout/view_setting_switch"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>
