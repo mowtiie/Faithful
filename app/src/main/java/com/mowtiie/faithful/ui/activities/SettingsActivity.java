@@ -3,13 +3,17 @@ package com.mowtiie.faithful.ui.activities;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.mowtiie.faithful.R;
+import com.mowtiie.faithful.data.Theme;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
+import com.mowtiie.faithful.util.SettingUtil;
 
 public class SettingsActivity extends FaithfulActivity {
 
@@ -48,9 +52,35 @@ public class SettingsActivity extends FaithfulActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
+
+        private SettingUtil settingUtil;
+
+        private ListPreference listTheme;
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.settings, rootKey);
+            setPreferences();
+
+            listTheme.setEntries(Theme.getValues());
+            listTheme.setEntryValues(Theme.getValues());
+            listTheme.setSummary(settingUtil.getTheme());
+            listTheme.setValue(settingUtil.getTheme());
+            listTheme.setOnPreferenceChangeListener((preference, newValue) -> {
+                String selectedTheme = (String) newValue;
+                if (selectedTheme.equals(Theme.SYSTEM.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                if (selectedTheme.equals(Theme.BATTERY_SAVING.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
+                if (selectedTheme.equals(Theme.LIGHT.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                if (selectedTheme.equals(Theme.DARK.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                settingUtil.setTheme(selectedTheme);
+                return true;
+            });
+        }
+
+        private void setPreferences() {
+            settingUtil = new SettingUtil(requireContext());
+
+            listTheme = findPreference("theme");
         }
     }
 }
