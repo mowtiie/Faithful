@@ -12,8 +12,8 @@
         android:id="@+id/widget_quick_thought_icon"
         android:src="@mipmap/ic_launcher"
         android:layout_marginBottom="12dp"
-        android:layout_width="86dp"
-        android:layout_height="86dp"/>
+        android:layout_width="100dp"
+        android:layout_height="100dp"/>
 
     <TextView
         android:id="@+id/widget_quick_thought_text"
