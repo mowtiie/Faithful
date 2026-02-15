@@ -1,4 +1,4 @@
-package com.mowtiie.faithful.data.thought;
+package com.mowtiie.faithful.data;
 
 public enum Contrast {
     LOW("Low"),

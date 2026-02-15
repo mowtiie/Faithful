@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.google.android.material.color.DynamicColors;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
-import com.mowtiie.faithful.data.thought.Contrast;
+import com.mowtiie.faithful.data.Contrast;
 import com.mowtiie.faithful.util.NotificationUtil;
 import com.mowtiie.faithful.util.SettingUtil;
 

@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import com.mowtiie.faithful.data.Theme;
-import com.mowtiie.faithful.data.thought.Contrast;
+import com.mowtiie.faithful.data.Contrast;
 
 public class SettingUtil {
 

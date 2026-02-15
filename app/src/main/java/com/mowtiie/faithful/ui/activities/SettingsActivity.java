@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,7 +21,7 @@ import com.google.android.material.color.DynamicColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Theme;
-import com.mowtiie.faithful.data.thought.Contrast;
+import com.mowtiie.faithful.data.Contrast;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
 import com.mowtiie.faithful.util.SettingUtil;
 
