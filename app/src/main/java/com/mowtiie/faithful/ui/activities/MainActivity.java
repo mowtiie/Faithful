@@ -54,15 +54,6 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
     private ArrayList<Thought> thoughts;
     private ThoughtAdapter thoughtAdapter;
 
-    private final ActivityResultLauncher<String> requestNotificationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // Do nothing
-                } else {
-                    Toast.makeText(this, R.string.toast_notification_permission_denied, Toast.LENGTH_SHORT).show();
-                }
-            });
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +67,6 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
             return insets;
         });
 
-        hasNotificationPermission();
         if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
             showNewThoughtDialog();
         }
@@ -204,25 +194,6 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
                 inputMethodManager.showSoftInput(thoughtContentText, InputMethodManager.SHOW_IMPLICIT);
             }
         }, 100);
-    }
-
-    private void hasNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                // Do nothing
-            } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
-                Snackbar.make(binding.getRoot(), getString(R.string.snack_bar_permission_notifications), Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.dialog_button_grant, v -> {
-                            Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                            intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
-                            startActivity(intent);
-                        }).show();
-            } else {
-                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
-            }
-        } else {
-            // Do nothing
-        }
     }
 
     @Override
