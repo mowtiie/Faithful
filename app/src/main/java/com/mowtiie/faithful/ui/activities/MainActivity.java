@@ -192,8 +192,15 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
     @Override
     public void OnClick(int position) {
         Thought thought = thoughts.get(position);
+        String timestamp;
+        if (settingUtil.getTimestamp().equals("Dynamic")) {
+            timestamp = DateTimeUtil.getPrettyStringDateTime(thought.getTimestamp());
+        } else {
+            timestamp = DateTimeUtil.getStringDateTime(thought.getTimestamp());
+        }
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                .setTitle(DateTimeUtil.getStringDateTime(thought.getTimestamp()))
+                .setTitle(timestamp)
                 .setIcon(R.drawable.ic_thought)
                 .setMessage(thought.getContent())
                 .setPositiveButton(R.string.dialog_button_close, null);

@@ -82,7 +82,12 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
         }
 
         public void bind(Thought thought, SettingUtil settingUtil) {
-            String timeStamp = DateTimeUtil.getStringDateTime(thought.getTimestamp());
+            String timeStamp;
+            if (settingUtil.getTimestamp().equals("Dynamic")) {
+                timeStamp = DateTimeUtil.getPrettyStringDateTime(thought.getTimestamp());
+            } else {
+                timeStamp = DateTimeUtil.getStringDateTime(thought.getTimestamp());
+            }
             String content = thought.getContent();
 
             thoughtTimeStamp.setText(timeStamp);

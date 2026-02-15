@@ -13,11 +13,6 @@ public class DateTimeUtil {
         return dateFormat.format(new Date(timeStamp));
     }
 
-    public static String getStringDateTime(long timeStamp, String pattern) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern, Locale.getDefault());
-        return dateFormat.format(new Date(timeStamp));
-    }
-
     public static String getPrettyStringDateTime(long timestamp){
         if (timestamp <= 0) return "";
 

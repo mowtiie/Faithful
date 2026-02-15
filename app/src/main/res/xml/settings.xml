@@ -15,6 +15,11 @@
             android:title="@string/setting_list_contrast"
             app:iconSpaceReserved="false"/>
 
+        <ListPreference
+            android:key="timestamp"
+            android:title="@string/setting_list_timestamp"
+            app:iconSpaceReserved="false"/>
+
         <SwitchPreferenceCompat
             android:key="dynamic_colors"
             android:widgetLayout="@layout/view_setting_switch"

@@ -15,6 +15,14 @@ public class SettingUtil {
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
+    public String getTimestamp() {
+        return sharedPreferences.getString("timestamp", "Formal");
+    }
+
+    public void setTimestamp(String value) {
+        sharedPreferences.edit().putString("timestamp", value).apply();
+    }
+
     public String getTheme() {
         return sharedPreferences.getString("theme", Theme.SYSTEM.value);
     }

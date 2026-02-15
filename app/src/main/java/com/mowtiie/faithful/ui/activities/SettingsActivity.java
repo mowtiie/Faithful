@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -33,6 +34,7 @@ import com.mowtiie.faithful.data.Contrast;
 import com.mowtiie.faithful.data.thought.Thought;
 import com.mowtiie.faithful.data.thought.ThoughtRepository;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
+import com.mowtiie.faithful.util.DateTimeUtil;
 import com.mowtiie.faithful.util.SettingUtil;
 
 import org.json.JSONArray;
@@ -93,6 +95,7 @@ public class SettingsActivity extends FaithfulActivity {
 
         private ListPreference listTheme;
         private ListPreference listContrast;
+        private ListPreference listTimestamp;
 
         private SwitchPreferenceCompat switchDynamicColors;
         private SwitchPreferenceCompat switchScreenPrivacy;
@@ -165,6 +168,18 @@ public class SettingsActivity extends FaithfulActivity {
                 if (selectedContrast.equals(Contrast.HIGH.value)) requireActivity().setTheme(R.style.Theme_Faithful_HighContrast);
                 requireActivity().recreate();
                 settingUtil.setContrast(selectedContrast);
+                return true;
+            });
+
+            String[] listTimestampItems = {"Dynamic", "Formal"};
+            listTimestamp.setEntries(listTimestampItems);
+            listTimestamp.setEntryValues(listTimestampItems);
+            listTimestamp.setSummary(settingUtil.getTimestamp());
+            listTimestamp.setValue(settingUtil.getTimestamp());
+            listTimestamp.setOnPreferenceChangeListener((preference, newValue) -> {
+                String selectedTimestamp = (String) newValue;
+                listTimestamp.setSummary(selectedTimestamp);
+                settingUtil.setTimestamp(selectedTimestamp);
                 return true;
             });
 
@@ -295,6 +310,7 @@ public class SettingsActivity extends FaithfulActivity {
 
             listTheme = findPreference("theme");
             listContrast = findPreference("contrast");
+            listTimestamp = findPreference("timestamp");
 
             switchDynamicColors = findPreference("dynamic_colors");
             switchScreenPrivacy = findPreference("screen_privacy");
