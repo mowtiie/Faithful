@@ -1,5 +1,6 @@
 package com.mowtiie.faithful.ui.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +24,7 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
     private final Context context;
     private final Listener listener;
     private final SettingUtil settingUtil;
-    private final ArrayList<Thought> thoughts;
+    private ArrayList<Thought> thoughts;
 
     public ThoughtAdapter(Context context, Listener listener, ArrayList<Thought> thoughts) {
         this.context = context;
@@ -36,6 +37,12 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
         void OnClick(int position);
         void OnDeleteClick(int position);
         void OnShareClick(int position);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void search(ArrayList<Thought> searchedThoughts) {
+        this.thoughts = searchedThoughts;
+        notifyDataSetChanged();
     }
 
     @NonNull

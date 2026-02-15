@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -102,7 +103,37 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_main, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        assert searchView != null;
+        searchView.setQueryHint("Search here");
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchThoughts(newText);
+                return true;
+            }
+        });
         return true;
+    }
+
+    private void searchThoughts(String text) {
+        ArrayList<Thought> filteredList = new ArrayList<>();
+        for (Thought item : thoughts) {
+            if (item.getContent().toLowerCase().contains(text.toLowerCase())) {
+                filteredList.add(item);
+            }
+        }
+
+        thoughtAdapter.search(filteredList);
+        binding.emptyIndicator.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override
