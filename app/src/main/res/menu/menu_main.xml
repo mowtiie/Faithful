@@ -4,25 +4,25 @@
 
     <item
         android:id="@+id/search"
-        android:title="Search"
+        android:title="@string/menu_search"
         android:icon="@drawable/ic_search"
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView"/>
 
     <item
         android:id="@+id/sort"
-        android:title="Sort by"
+        android:title="@string/menu_sort"
         android:icon="@drawable/ic_sort"
         app:showAsAction="ifRoom">
 
         <menu>
             <item
                 android:id="@+id/sort_latest"
-                android:title="Latest"/>
+                android:title="@string/menu_sort_latest"/>
 
             <item
                 android:id="@+id/sort_oldest"
-                android:title="Oldest"/>
+                android:title="@string/menu_sort_oldest"/>
         </menu>
     </item>
 </menu>

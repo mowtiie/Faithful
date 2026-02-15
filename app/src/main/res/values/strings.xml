@@ -34,7 +34,12 @@
     <string name="button_delete">Delete</string>
     
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</string>
-    
+
+    <string name="menu_search">Search</string>
+    <string name="menu_sort">Sort by</string>
+    <string name="menu_sort_latest">Latest</string>
+    <string name="menu_sort_oldest">oldest</string>
+
     <string name="setting_category_appearance">Appearance</string>
     <string name="setting_list_theme">Theme</string>
     <string name="setting_list_contrast">Contrast</string>
