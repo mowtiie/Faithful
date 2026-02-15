@@ -1,13 +1,20 @@
 package com.mowtiie.faithful.ui.activities;
 
 import android.app.Dialog;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -20,15 +27,23 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mowtiie.faithful.R;
+import com.mowtiie.faithful.data.Database;
 import com.mowtiie.faithful.data.Theme;
 import com.mowtiie.faithful.data.Contrast;
+import com.mowtiie.faithful.data.thought.Thought;
+import com.mowtiie.faithful.data.thought.ThoughtRepository;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
 import com.mowtiie.faithful.util.SettingUtil;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class SettingsActivity extends FaithfulActivity {
 
@@ -69,9 +84,12 @@ public class SettingsActivity extends FaithfulActivity {
     public static class SettingsFragment extends PreferenceFragmentCompat {
 
         private SettingUtil settingUtil;
+        private ThoughtRepository thoughtRepository;
 
         private Preference appLicense;
         private Preference appVersion;
+        private Preference importThoughts;
+        private Preference exportThoughts;
 
         private ListPreference listTheme;
         private ListPreference listContrast;
@@ -79,10 +97,40 @@ public class SettingsActivity extends FaithfulActivity {
         private SwitchPreferenceCompat switchDynamicColors;
         private SwitchPreferenceCompat switchScreenPrivacy;
 
+        private final ActivityResultLauncher<Intent> exportDataLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            exportJSON(data.getData());
+                        }
+                    }
+                });
+
+        private final ActivityResultLauncher<Intent> importDataLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            importJSON(data.getData());
+                        }
+                    }
+                });
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.settings, rootKey);
             setPreferences();
+
+            importThoughts.setOnPreferenceClickListener(preference -> {
+                importData();
+                return true;
+            });
+
+            exportThoughts.setOnPreferenceClickListener(preference -> {
+                exportData();
+                return true;
+            });
 
             try {
                 PackageManager packageManager = requireContext().getPackageManager();
@@ -141,8 +189,109 @@ public class SettingsActivity extends FaithfulActivity {
             });
         }
 
+        private void importJSON(Uri uri) {
+            StringBuilder jsonBuilder = new StringBuilder();
+
+            try (Database database = new Database(requireContext())) {
+                SQLiteDatabase writableDatabase = database.getWritableDatabase();
+                InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    jsonBuilder.append(line);
+                }
+                bufferedReader.close();
+
+                JSONObject jsonImport = new JSONObject(jsonBuilder.toString());
+                JSONArray savingJsonArray = jsonImport.getJSONArray(Database.TABLE_THOUGHT);
+
+                try {
+                    writableDatabase.beginTransaction();
+                    for (int i = 0; i < savingJsonArray.length(); i++) {
+                        JSONObject thoughtObject = savingJsonArray.getJSONObject(i);
+                        ContentValues thoughtValues = new ContentValues();
+
+                        thoughtValues.put(Database.COLUMN_THOUGHT_ID, thoughtObject.getString(Database.COLUMN_THOUGHT_ID));
+                        thoughtValues.put(Database.COLUMN_THOUGHT_CONTENT, thoughtObject.getString(Database.COLUMN_THOUGHT_CONTENT));
+                        thoughtValues.put(Database.COLUMN_THOUGHT_TIMESTAMP, thoughtObject.getLong(Database.COLUMN_THOUGHT_TIMESTAMP));
+                        writableDatabase.insert(Database.TABLE_THOUGHT, null, thoughtValues);
+                    }
+
+                    writableDatabase.setTransactionSuccessful();
+                    Toast.makeText(requireContext(), R.string.toast_import_successful, Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Log.e("Import", "Something went wrong while importing thoughts", e);
+                } finally {
+                    writableDatabase.endTransaction();
+                }
+            } catch (Exception e) {
+                Log.e("Import", "Something went wrong while importing", e);
+            }
+        }
+
+        private void exportJSON(Uri uri) {
+            ArrayList<Thought> thoughts = new ArrayList<>(thoughtRepository.getAll());
+            JSONArray thoughtJsonArray = new JSONArray();
+
+            try {
+                for (Thought thought : thoughts) {
+                    JSONObject thoughtObject = new JSONObject();
+                    thoughtObject.put(Database.COLUMN_THOUGHT_ID, thought.getId());
+                    thoughtObject.put(Database.COLUMN_THOUGHT_CONTENT, thought.getContent());
+                    thoughtObject.put(Database.COLUMN_THOUGHT_TIMESTAMP, thought.getTimestamp());
+                    thoughtJsonArray.put(thoughtObject);
+                }
+            } catch (Exception e) {
+                Log.e("Export", "Something went wrong when collecting thoughts", e);
+            }
+
+            try {
+                JSONObject jsonExport = new JSONObject();
+                jsonExport.put(Database.TABLE_THOUGHT, thoughtJsonArray);
+
+                OutputStream outputStream = requireContext().getContentResolver().openOutputStream(uri);
+                if (outputStream != null) {
+                    outputStream.write(jsonExport.toString().getBytes());
+                    outputStream.close();
+                }
+
+                Toast.makeText(requireContext(), R.string.toast_export_successful, Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e("Export", "Something went wrong when exporting", e);
+            }
+        }
+
+        private void exportData() {
+            if (noThoughtsFound()) {
+                Toast.makeText(requireContext(), R.string.toast_no_thoughts, Toast.LENGTH_SHORT).show();
+            } else {
+                Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                exportIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                exportIntent.setType("application/json");
+                exportIntent.putExtra(Intent.EXTRA_TITLE, "thoughts.json");
+                exportDataLauncher.launch(exportIntent);
+            }
+        }
+
+        private boolean noThoughtsFound() {
+            try (ThoughtRepository thoughtRepository = new ThoughtRepository(requireContext())) {
+                ArrayList<Thought> thoughts = new ArrayList<>(thoughtRepository.getAll());
+                if (thoughts.isEmpty()) return true;
+            }
+            return false;
+        }
+
+        private void importData() {
+            Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            importIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            importIntent.setType("application/json");
+            importDataLauncher.launch(importIntent);
+        }
+
         private void setPreferences() {
             settingUtil = new SettingUtil(requireContext());
+            thoughtRepository = new ThoughtRepository(requireContext());
 
             listTheme = findPreference("theme");
             listContrast = findPreference("contrast");
@@ -152,6 +301,8 @@ public class SettingsActivity extends FaithfulActivity {
 
             appLicense = findPreference("app_license");
             appVersion = findPreference("app_version");
+            importThoughts = findPreference("import");
+            exportThoughts = findPreference("export");
         }
 
         private void showLicenseDialog() {

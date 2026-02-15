@@ -26,6 +26,9 @@
     <string name="dialog_message_delete_thought">You are about to delete this thought, this action cannot be undone.</string>
 
     <string name="toast_notification_permission_denied">Notification permission denied</string>
+    <string name="toast_no_thoughts">No thoughts to export</string>
+    <string name="toast_import_successful">Thoughts has been imported</string>
+    <string name="toast_export_successful">Thoughts has been exported</string>
     <string name="snack_bar_permission_notifications">Deadlines requires notification permissions to work.</string>
 
     <string name="placeholder_thought_timestamp">02/14/2026 1:40 AM</string>
