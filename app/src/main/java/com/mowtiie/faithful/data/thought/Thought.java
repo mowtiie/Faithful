@@ -1,6 +1,7 @@
 package com.mowtiie.faithful.data.thought;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 public class Thought implements Serializable {
 
@@ -41,4 +42,7 @@ public class Thought implements Serializable {
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
+
+    public static final Comparator<Thought> SORT_ASCENDING = Comparator.comparingLong(Thought::getTimestamp);
+    public static final Comparator<Thought> SORT_DESCENDING = SORT_ASCENDING.reversed();
 }
