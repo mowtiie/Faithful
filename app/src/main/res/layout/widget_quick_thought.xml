@@ -17,7 +17,7 @@
 
     <TextView
         android:id="@+id/widget_quick_thought_text"
-        android:text="Hilow po, Ali!\nWhat's your thought?"
+        android:text="What's your thought \nat the moment?"
         android:textAlignment="center"
         android:fontFamily="serif"
         android:textSize="16sp"
