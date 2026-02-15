@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -90,6 +92,13 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         });
 
         binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @SuppressLint("NotifyDataSetChanged")
