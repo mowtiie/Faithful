@@ -1,38 +1,26 @@
 package com.mowtiie.faithful.ui.activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mowtiie.faithful.R;
@@ -43,7 +31,6 @@ import com.mowtiie.faithful.ui.adapters.ThoughtAdapter;
 import com.mowtiie.faithful.util.DateTimeUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -206,7 +193,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
     public void OnClick(int position) {
         Thought thought = thoughts.get(position);
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                .setTitle(DateTimeUtil.getStringDate(thought.getTimestamp()))
+                .setTitle(DateTimeUtil.getStringDateTime(thought.getTimestamp()))
                 .setIcon(R.drawable.ic_thought)
                 .setMessage(thought.getContent())
                 .setPositiveButton(R.string.dialog_button_close, null);
