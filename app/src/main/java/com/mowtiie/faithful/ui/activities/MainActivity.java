@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -40,6 +42,7 @@ import com.mowtiie.faithful.ui.adapters.ThoughtAdapter;
 import com.mowtiie.faithful.util.DateTimeUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -80,6 +83,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         thoughts = new ArrayList<>();
         thoughtRepository = new ThoughtRepository(this);
         thoughts.addAll(thoughtRepository.getAll());
+        thoughts.sort(Thought.SORT_DESCENDING);
         thoughtAdapter = new ThoughtAdapter(this, this, thoughts);
 
         binding.emptyIndicator.setVisibility(thoughts.isEmpty() ? View.VISIBLE : View.GONE);
@@ -101,10 +105,30 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.sort_latest) {
+            sortThoughts(false);
+        }
+
+        if (item.getItemId() == R.id.sort_oldest) {
+            sortThoughts(true);
+        }
+
+        return true;
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void sortThoughts(boolean isAscending) {
+        thoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
+        thoughtAdapter.notifyDataSetChanged();
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private void refreshList() {
         thoughts.clear();
         thoughts.addAll(thoughtRepository.getAll());
+        thoughts.sort(Thought.SORT_DESCENDING);
 
         binding.emptyIndicator.setVisibility(thoughts.isEmpty() ? View.VISIBLE : View.GONE);
         binding.thoughtsList.setVisibility(thoughts.isEmpty() ? View.GONE : View.VISIBLE);
