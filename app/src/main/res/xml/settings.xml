@@ -36,6 +36,23 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="Backup &amp; Restore"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="import"
+            app:iconSpaceReserved="false"
+            android:title="@string/setting_import_title"
+            android:summary="@string/setting_import_summary"/>
+
+        <Preference
+            android:key="export"
+            app:iconSpaceReserved="false"
+            android:title="@string/setting_export_title"
+            android:summary="@string/setting_export_summary"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="About"
         app:iconSpaceReserved="false">
 
