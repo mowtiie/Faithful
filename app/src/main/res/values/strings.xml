@@ -2,6 +2,7 @@
     <string name="app_name">Faithful</string>
     <string name="app_license">GNU General Public License v3.0</string>
     <string name="app_author">mowtiie</string>
+    <string name="app_easter_egg">You\'ve done this before, haven\'t you?</string>
     
     <string name="empty_indicator_idea_list">No thoughts yet.</string>
     

@@ -100,6 +100,8 @@ public class SettingsActivity extends FaithfulActivity {
         private SwitchPreferenceCompat switchDynamicColors;
         private SwitchPreferenceCompat switchScreenPrivacy;
 
+        private int easterEggCounter = 0;
+
         private final ActivityResultLauncher<Intent> exportDataLauncher =
                 registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                     if (result.getResultCode() == RESULT_OK) {
@@ -200,6 +202,14 @@ public class SettingsActivity extends FaithfulActivity {
 
             appLicense.setOnPreferenceClickListener(preference -> {
                 showLicenseDialog();
+                return true;
+            });
+
+            appVersion.setOnPreferenceClickListener(preference -> {
+                easterEggCounter++;
+                if (easterEggCounter == 7) {
+                    Toast.makeText(requireContext(), R.string.app_easter_egg, Toast.LENGTH_SHORT).show();
+                }
                 return true;
             });
         }
