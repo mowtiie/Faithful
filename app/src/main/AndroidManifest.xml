@@ -20,15 +20,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Faithful">
         <activity
-            android:name=".ui.activities.LockActivity"
-            android:launchMode="singleTop"
+            android:name=".ui.activities.MainActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.activities.LockActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
         <activity
             android:name=".ui.activities.SettingsActivity"
             android:exported="false"
             android:parentActivityName=".ui.activities.MainActivity" />
         <activity
-            android:name=".ui.activities.MainActivity"
+            android:name=".ui.activities.SecureActivity"
             android:exported="true"
             android:windowSoftInputMode="stateVisible">
             <intent-filter>
