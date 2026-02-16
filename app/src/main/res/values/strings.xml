@@ -52,6 +52,8 @@
     <string name="setting_switch_dynamic_colors_summary">Apply colors from your wallpaper to the application theme</string>
     <string name="setting_switch_screen_privacy_title">Screen Privacy</string>
     <string name="setting_switch_screen_privacy_summary">Prevents capturing of screenshots and screen recordings in the app</string>
+    <string name="setting_switch_app_lock_title">App Lock</string>
+    <string name="setting_switch_app_lock_summary">Secure your thoughts with a password</string>
     <string name="setting_import_title">Import</string>
     <string name="setting_import_summary">Bring back your exported thoughts</string>
     <string name="setting_export_title">Export</string>
