@@ -15,6 +15,14 @@ public class SettingUtil {
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
+    public String getPassword() {
+        return sharedPreferences.getString("app_password", null);
+    }
+
+    public void setPassword(String value) {
+        sharedPreferences.edit().putString("app_password", null).apply();
+    }
+
     public String getTimestamp() {
         return sharedPreferences.getString("timestamp", "Formal");
     }
