@@ -99,6 +99,7 @@ public class SettingsActivity extends FaithfulActivity {
 
         private SwitchPreferenceCompat switchDynamicColors;
         private SwitchPreferenceCompat switchScreenPrivacy;
+        private SwitchPreferenceCompat switchAppLock;
 
         private int easterEggCounter = 0;
 
@@ -324,6 +325,7 @@ public class SettingsActivity extends FaithfulActivity {
 
             switchDynamicColors = findPreference("dynamic_colors");
             switchScreenPrivacy = findPreference("screen_privacy");
+            switchAppLock = findPreference("app_lock");
 
             appLicense = findPreference("app_license");
             appVersion = findPreference("app_version");
