@@ -16,6 +16,10 @@
     <string name="field_thought_content">Content</string>
     <string name="field_thought_content_empty_error">This field is required</string>
     <string name="field_thought_helper">*required</string>
+    <string name="field_app_password">Password</string>
+    <string name="field_app_password_helper">*required</string>
+    <string name="field_app_confirm_password">Confirm Password</string>
+    <string name="field_app_confirm_password_helper">*passwords must match</string>
 
     <string name="dialog_new_thought">New Thought</string>
     <string name="dialog_button_cancel">Cancel</string>
