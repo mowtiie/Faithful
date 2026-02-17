@@ -2,6 +2,7 @@ package com.mowtiie.faithful.ui.activities;
 
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -10,12 +11,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -27,6 +31,8 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Database;
 import com.mowtiie.faithful.data.Theme;
@@ -35,6 +41,7 @@ import com.mowtiie.faithful.data.thought.Thought;
 import com.mowtiie.faithful.data.thought.ThoughtRepository;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
 import com.mowtiie.faithful.util.DateTimeUtil;
+import com.mowtiie.faithful.util.PasswordUtil;
 import com.mowtiie.faithful.util.SettingUtil;
 
 import org.json.JSONArray;
@@ -46,6 +53,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SettingsActivity extends FaithfulActivity {
 
@@ -194,6 +202,16 @@ public class SettingsActivity extends FaithfulActivity {
                 return true;
             });
 
+            switchAppLock.setChecked(settingUtil.getPassword() != null);
+            switchAppLock.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (settingUtil.getPassword() == null) {
+                    showSetAppLockDialog();
+                } else {
+                    showRemoveAppLockDialog();
+                }
+                return true;
+            });
+
             switchScreenPrivacy.setChecked(settingUtil.isScreenPrivacyEnabled());
             switchScreenPrivacy.setOnPreferenceChangeListener((preference, isChecked) -> {
                 settingUtil.setScreenPrivacy((boolean) isChecked);
@@ -213,6 +231,87 @@ public class SettingsActivity extends FaithfulActivity {
                 }
                 return true;
             });
+        }
+
+        private void showSetAppLockDialog() {
+            View setAppLockDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_set_app_password, null, false);
+
+            TextInputLayout passwordLayout = setAppLockDialogView.findViewById(R.id.field_app_password_layout);
+            TextInputLayout confirmPasswordLayout = setAppLockDialogView.findViewById(R.id.field_app_confirm_password_layout);
+
+            TextInputEditText passwordText = setAppLockDialogView.findViewById(R.id.field_app_password_text);
+            TextInputEditText confirmPasswordText = setAppLockDialogView.findViewById(R.id.field_app_confirm_password_text);
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.dialog_title_app_lock)
+                    .setMessage(R.string.dialog_message_app_lock)
+                    .setIcon(R.drawable.ic_lock)
+                    .setView(setAppLockDialogView)
+                    .setNegativeButton(R.string.dialog_button_close, null)
+                    .setPositiveButton(R.string.dialog_button_lock, null);
+
+            AlertDialog appLockDialog = builder.create();
+            appLockDialog.setOnShowListener(dialog -> {
+                appLockDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> {
+                    switchAppLock.setChecked(false);
+                    appLockDialog.dismiss();
+                });
+
+                appLockDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    String password = Objects.requireNonNull(passwordText.getText()).toString();
+                    String confirmPassword = Objects.requireNonNull(confirmPasswordText.getText()).toString();
+
+                    if (password.isEmpty()) {
+                        passwordLayout.setError(getString(R.string.field_app_password_error));
+                        return;
+                    }
+
+                    if (confirmPassword.isEmpty()) {
+                        confirmPasswordLayout.setError(getString(R.string.field_app_password_error));
+                        return;
+                    }
+
+                    if (!password.equals(confirmPassword)) {
+                        passwordText.setText("");
+                        confirmPasswordText.setText("");
+
+                        passwordLayout.setError(getString(R.string.field_app_password_must_match_error));
+                        confirmPasswordLayout.setError(getString(R.string.field_app_password_must_match_error));
+                        return;
+                    }
+
+                    if (password.length() < 8) {
+                        passwordLayout.setError(getString(R.string.field_app_password_too_short_error));
+                        confirmPasswordLayout.setError(getString(R.string.field_app_password_too_short_error));
+                        return;
+                    }
+
+                    try {
+                        String hashedPassword = PasswordUtil.hashPassword(password);
+                        settingUtil.setPassword(hashedPassword);
+                        Toast.makeText(requireContext(), R.string.toast_app_lock_enabled, Toast.LENGTH_SHORT).show();
+                        appLockDialog.dismiss();
+                    } catch (Exception e) {
+                        Toast.makeText(requireContext(), R.string.toast_app_lock_enabled, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+            appLockDialog.show();
+        }
+
+        private void showRemoveAppLockDialog() {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.dialog_title_remove_app_lock)
+                    .setMessage(R.string.dialog_message_remote_app_lock)
+                    .setIcon(R.drawable.ic_warning)
+                    .setNegativeButton(R.string.dialog_button_close, (dialog, which) -> switchAppLock.setChecked(true))
+                    .setPositiveButton(R.string.dialog_button_remove, (dialog, which) -> {
+                        settingUtil.setPassword(null);
+                        Toast.makeText(requireContext(), R.string.toast_app_lock_disabled, Toast.LENGTH_SHORT).show();
+                    });
+
+            AlertDialog removeAppLockDialog = builder.create();
+            removeAppLockDialog.show();
         }
 
         private void importJSON(Uri uri) {

@@ -15,11 +15,14 @@
 
     <string name="field_thought_content">Content</string>
     <string name="field_thought_content_empty_error">This field is required</string>
+    <string name="field_app_password_error">This field is required</string>
+    <string name="field_app_password_must_match_error">Both passwords must match</string>
     <string name="field_thought_helper">*required</string>
     <string name="field_app_password">Password</string>
-    <string name="field_app_password_helper">*required</string>
+    <string name="field_app_password_helper">This field is required</string>
     <string name="field_app_confirm_password">Confirm Password</string>
-    <string name="field_app_confirm_password_helper">*passwords must match</string>
+    <string name="field_app_password_too_short_error">Password is too weak</string>
+    <string name="field_app_password_incorrect_error">Incorrect password, please try again.</string>
 
     <string name="dialog_new_thought">New Thought</string>
     <string name="dialog_button_cancel">Cancel</string>
@@ -27,9 +30,17 @@
     <string name="dialog_button_delete">Delete</string>
     <string name="dialog_button_close">Close</string>
     <string name="dialog_button_grant">Grant</string>
+    <string name="dialog_button_lock">Lock</string>
+    <string name="dialog_button_remove">Remove</string>
+    <string name="dialog_title_app_lock">Enable app lock</string>
+    <string name="dialog_title_remove_app_lock">Disable app lock?</string>
     <string name="dialog_title_delete_thought">Delete thought?</string>
+    <string name="dialog_message_app_lock">Keep your thoughts to yourself. Turn on app lock with a password to prevent unwanted people at bay.</string>
     <string name="dialog_message_delete_thought">You are about to delete this thought, this action cannot be undone.</string>
+    <string name="dialog_message_remote_app_lock">You are about to disable app lock, this action may leave your thoughts exposed and unprotected.</string>
 
+    <string name="toast_app_lock_enabled">App lock has been enabled</string>
+    <string name="toast_app_lock_disabled">App lock has been disabled</string>
     <string name="toast_notification_permission_denied">Notification permission denied</string>
     <string name="toast_no_thoughts">No thoughts to export</string>
     <string name="toast_import_successful">Thoughts has been imported</string>

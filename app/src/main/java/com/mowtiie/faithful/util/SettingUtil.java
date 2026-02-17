@@ -20,7 +20,7 @@ public class SettingUtil {
     }
 
     public void setPassword(String value) {
-        sharedPreferences.edit().putString("app_password", null).apply();
+        sharedPreferences.edit().putString("app_password", value).apply();
     }
 
     public String getTimestamp() {
