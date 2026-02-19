@@ -13,6 +13,8 @@
     <string name="link_app_source_code">https://github.com/mowtiie/Faithful</string>
     <string name="link_app_author">https://github.com/mowtiie</string>
 
+    <string name="hint_toolbar_search">Search here</string>
+
     <string name="field_thought_content">Content</string>
     <string name="field_thought_content_empty_error">This field is required</string>
     <string name="field_app_password_error">This field is required</string>

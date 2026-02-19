@@ -18,6 +18,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -31,6 +32,7 @@ import com.mowtiie.faithful.ui.adapters.ThoughtAdapter;
 import com.mowtiie.faithful.util.DateTimeUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -38,7 +40,10 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     private ActivityMainBinding binding;
     private ThoughtRepository thoughtRepository;
-    private ArrayList<Thought> thoughts;
+
+    private ArrayList<Thought> allThoughts;
+    private ArrayList<Thought> displayedThoughts;
+
     private ThoughtAdapter thoughtAdapter;
 
     @Override
@@ -54,17 +59,16 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
             return insets;
         });
 
-        if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
-            showNewThoughtDialog();
-        }
-
-        thoughts = new ArrayList<>();
+        allThoughts = new ArrayList<>();
+        displayedThoughts = new ArrayList<>();
         thoughtRepository = new ThoughtRepository(this);
-        thoughts.addAll(thoughtRepository.getAll());
-        thoughts.sort(Thought.SORT_DESCENDING);
-        thoughtAdapter = new ThoughtAdapter(this, this, thoughts);
+        allThoughts.addAll(thoughtRepository.getAll());
+        allThoughts.sort(Thought.SORT_DESCENDING);
+        displayedThoughts.addAll(allThoughts);
 
-        binding.emptyIndicator.setVisibility(thoughts.isEmpty() ? View.VISIBLE : View.GONE);
+        thoughtAdapter = new ThoughtAdapter(this, this, displayedThoughts);
+
+        binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
         binding.thoughtsList.setLayoutManager(new LinearLayoutManager(this));
         binding.thoughtsList.setAdapter(thoughtAdapter);
 
@@ -74,6 +78,10 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         });
 
         binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
+
+        if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
+            showNewThoughtDialog();
+        }
     }
 
     @Override
@@ -84,8 +92,8 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
 
-        assert searchView != null;
-        searchView.setQueryHint("Search here");
+        if (searchView == null) return true;
+        searchView.setQueryHint(getString(R.string.hint_toolbar_search));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -103,23 +111,20 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     private void searchThoughts(String text) {
         ArrayList<Thought> filteredList = new ArrayList<>();
-        for (Thought item : thoughts) {
+        for (Thought item : allThoughts) {
             if (item.getContent().toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(item);
             }
         }
 
-        thoughtAdapter.search(filteredList);
-        binding.emptyIndicator.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
+        updateDisplayedList(filteredList);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sort_latest) {
             sortThoughts(false);
-        }
-
-        if (item.getItemId() == R.id.sort_oldest) {
+        } else if (item.getItemId() == R.id.sort_oldest) {
             sortThoughts(true);
         }
 
@@ -128,19 +133,72 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     @SuppressLint("NotifyDataSetChanged")
     private void sortThoughts(boolean isAscending) {
-        thoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
+        allThoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
+        displayedThoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
         thoughtAdapter.notifyDataSetChanged();
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void refreshList() {
-        thoughts.clear();
-        thoughts.addAll(thoughtRepository.getAll());
-        thoughts.sort(Thought.SORT_DESCENDING);
+        List<Thought> freshList = thoughtRepository.getAll();
+        freshList.sort(Thought.SORT_DESCENDING);
 
-        binding.emptyIndicator.setVisibility(thoughts.isEmpty() ? View.VISIBLE : View.GONE);
-        binding.thoughtsList.setVisibility(thoughts.isEmpty() ? View.GONE : View.VISIBLE);
-        thoughtAdapter.notifyDataSetChanged();
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() { return allThoughts.size(); }
+
+            @Override
+            public int getNewListSize() { return freshList.size(); }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return allThoughts.get(oldItemPosition).getId()
+                        .equals(freshList.get(newItemPosition).getId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                return allThoughts.get(oldItemPosition).getContent()
+                        .equals(freshList.get(newItemPosition).getContent());
+            }
+        });
+
+        allThoughts.clear();
+        allThoughts.addAll(freshList);
+
+        displayedThoughts.clear();
+        displayedThoughts.addAll(allThoughts);
+        diffResult.dispatchUpdatesTo(thoughtAdapter);
+
+        binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
+        binding.thoughtsList.setVisibility(displayedThoughts.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private void updateDisplayedList(List<Thought> newList) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() { return displayedThoughts.size(); }
+
+            @Override
+            public int getNewListSize() { return newList.size(); }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return displayedThoughts.get(oldItemPosition).getId()
+                        .equals(newList.get(newItemPosition).getId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                return displayedThoughts.get(oldItemPosition).getContent()
+                        .equals(newList.get(newItemPosition).getContent());
+            }
+        });
+
+        displayedThoughts.clear();
+        displayedThoughts.addAll(newList);
+        diffResult.dispatchUpdatesTo(thoughtAdapter);
+
+        binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void showNewThoughtDialog() {
@@ -158,7 +216,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
         AlertDialog newThoughtDialog = builder.create();
         newThoughtDialog.setOnShowListener(dialog -> newThoughtDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String thoughtContent = Objects.requireNonNull(thoughtContentText.getText()).toString();
+            String thoughtContent = Objects.requireNonNull(thoughtContentText.getText()).toString().trim();
             if (thoughtContent.isEmpty()) {
                 thoughtContentLayout.setError(getString(R.string.field_thought_content_empty_error));
                 return;
@@ -186,12 +244,15 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (thoughtRepository != null) {
+            thoughtRepository.close();
+        }
         binding = null;
     }
 
     @Override
     public void OnClick(int position) {
-        Thought thought = thoughts.get(position);
+        Thought thought = displayedThoughts.get(position);
         String timestamp;
         if (settingUtil.getTimestamp().equals("Dynamic")) {
             timestamp = DateTimeUtil.getPrettyStringDateTime(thought.getTimestamp());
@@ -211,7 +272,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     @Override
     public void OnDeleteClick(int position) {
-        Thought thought = thoughts.get(position);
+        Thought thought = displayedThoughts.get(position);
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_title_delete_thought)
                 .setIcon(R.drawable.ic_delete)
@@ -237,7 +298,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     @Override
     public void OnShareClick(int position) {
-        Thought thought = thoughts.get(position);
+        Thought thought = displayedThoughts.get(position);
 
         Intent sendIntent = new Intent();
         sendIntent.setType("text/plain");
