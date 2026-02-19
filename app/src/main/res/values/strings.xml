@@ -4,6 +4,8 @@
     <string name="app_author">mowtiie</string>
     <string name="app_easter_egg">You\'ve done this before, haven\'t you?</string>
 
+    <string name="export_file_name">exported_thoughts</string>
+
     <string name="empty_indicator_idea_list">No thoughts found</string>
 
     <string name="title_activity_settings">SettingsActivity</string>
@@ -41,6 +43,11 @@
     <string name="dialog_message_delete_thought">You are about to delete this thought, this action cannot be undone.</string>
     <string name="dialog_message_remote_app_lock">You are about to disable app lock, this action may leave your thoughts exposed and unprotected.</string>
 
+    <string name="toast_license_error">Something went wrong when trying to load the license file</string>
+    <string name="toast_export_failed">Something went wrong when exporting thoughts</string>
+    <string name="toast_import_failed">Something went wrong when importing thoughts</string>
+    <string name="toast_app_lock_error">Something went wrong enabling app lock</string>
+    <string name="toast_version_error">Error loading application version</string>
     <string name="toast_app_lock_enabled">App lock has been enabled</string>
     <string name="toast_app_lock_disabled">App lock has been disabled</string>
     <string name="toast_notification_permission_denied">Notification permission denied</string>

@@ -2,7 +2,6 @@ package com.mowtiie.faithful.ui.activities;
 
 import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -18,7 +17,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
@@ -37,10 +35,10 @@ import com.mowtiie.faithful.R;
 import com.mowtiie.faithful.data.Database;
 import com.mowtiie.faithful.data.Theme;
 import com.mowtiie.faithful.data.Contrast;
+import com.mowtiie.faithful.data.Timestamp;
 import com.mowtiie.faithful.data.thought.Thought;
 import com.mowtiie.faithful.data.thought.ThoughtRepository;
 import com.mowtiie.faithful.databinding.ActivitySettingsBinding;
-import com.mowtiie.faithful.util.DateTimeUtil;
 import com.mowtiie.faithful.util.PasswordUtil;
 import com.mowtiie.faithful.util.SettingUtil;
 
@@ -82,7 +80,6 @@ public class SettingsActivity extends FaithfulActivity {
                     .replace(R.id.settings_container, new SettingsFragment())
                     .commit();
         }
-
     }
 
     @Override
@@ -136,101 +133,140 @@ public class SettingsActivity extends FaithfulActivity {
             setPreferencesFromResource(R.xml.settings, rootKey);
             setPreferences();
 
-            importThoughts.setOnPreferenceClickListener(preference -> {
-                importData();
-                return true;
-            });
+            if (importThoughts != null) {
+                importThoughts.setOnPreferenceClickListener(preference -> {
+                    importData();
+                    return true;
+                });
+            }
 
-            exportThoughts.setOnPreferenceClickListener(preference -> {
-                exportData();
-                return true;
-            });
+            if (exportThoughts != null) {
+                exportThoughts.setOnPreferenceClickListener(preference -> {
+                    exportData();
+                    return true;
+                });
+            }
 
             try {
                 PackageManager packageManager = requireContext().getPackageManager();
                 PackageInfo packageInfo = packageManager.getPackageInfo(requireContext().getPackageName(), 0);
-                appVersion.setSummary(packageInfo.versionName);
+                if (appVersion != null) {
+                    appVersion.setSummary(packageInfo.versionName);
+                }
             } catch (PackageManager.NameNotFoundException e) {
-                Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.toast_version_error, Toast.LENGTH_SHORT).show();
+                Log.e("SettingsFragment", "Failed to get package info", e);
             }
 
-            listTheme.setEntries(Theme.getValues());
-            listTheme.setEntryValues(Theme.getValues());
-            listTheme.setSummary(settingUtil.getTheme());
-            listTheme.setValue(settingUtil.getTheme());
-            listTheme.setOnPreferenceChangeListener((preference, newValue) -> {
-                String selectedTheme = (String) newValue;
-                if (selectedTheme.equals(Theme.SYSTEM.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                if (selectedTheme.equals(Theme.BATTERY_SAVING.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
-                if (selectedTheme.equals(Theme.LIGHT.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                if (selectedTheme.equals(Theme.DARK.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                settingUtil.setTheme(selectedTheme);
-                return true;
-            });
+            if (listTheme != null) {
+                listTheme.setEntries(Theme.getValues());
+                listTheme.setEntryValues(Theme.getValues());
+                listTheme.setSummary(settingUtil.getTheme());
+                listTheme.setValue(settingUtil.getTheme());
+                listTheme.setOnPreferenceChangeListener((preference, newValue) -> {
+                    String selectedTheme = (String) newValue;
+                    if (selectedTheme.equals(Theme.SYSTEM.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                    else if (selectedTheme.equals(Theme.BATTERY_SAVING.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
+                    else if (selectedTheme.equals(Theme.LIGHT.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    else if (selectedTheme.equals(Theme.DARK.value)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    settingUtil.setTheme(selectedTheme);
+                    listTheme.setSummary(selectedTheme);
+                    return true;
+                });
+            }
 
-            listContrast.setEntries(Contrast.getValues());
-            listContrast.setEntryValues(Contrast.getValues());
-            listContrast.setSummary(settingUtil.getContrast());
-            listContrast.setValue(settingUtil.getContrast());
-            listContrast.setOnPreferenceChangeListener((preference, newValue) -> {
-                String selectedContrast = (String) newValue;
-                if (selectedContrast.equals(Contrast.LOW.value)) requireActivity().setTheme(R.style.Theme_Faithful);
-                if (selectedContrast.equals(Contrast.MEDIUM.value)) requireActivity().setTheme(R.style.Theme_Faithful_MediumContrast);
-                if (selectedContrast.equals(Contrast.HIGH.value)) requireActivity().setTheme(R.style.Theme_Faithful_HighContrast);
-                requireActivity().recreate();
-                settingUtil.setContrast(selectedContrast);
-                return true;
-            });
+            if (listContrast != null) {
+                listContrast.setEntries(Contrast.getValues());
+                listContrast.setEntryValues(Contrast.getValues());
+                listContrast.setSummary(settingUtil.getContrast());
+                listContrast.setValue(settingUtil.getContrast());
+                listContrast.setOnPreferenceChangeListener((preference, newValue) -> {
+                    String selectedContrast = (String) newValue;
+                    if (selectedContrast.equals(Contrast.LOW.value)) requireActivity().setTheme(R.style.Theme_Faithful);
+                    else if (selectedContrast.equals(Contrast.MEDIUM.value)) requireActivity().setTheme(R.style.Theme_Faithful_MediumContrast);
+                    else if (selectedContrast.equals(Contrast.HIGH.value)) requireActivity().setTheme(R.style.Theme_Faithful_HighContrast);
+                    settingUtil.setContrast(selectedContrast);
+                    requireActivity().recreate();
+                    return true;
+                });
+            }
 
-            String[] listTimestampItems = {"Dynamic", "Formal"};
-            listTimestamp.setEntries(listTimestampItems);
-            listTimestamp.setEntryValues(listTimestampItems);
-            listTimestamp.setSummary(settingUtil.getTimestamp());
-            listTimestamp.setValue(settingUtil.getTimestamp());
-            listTimestamp.setOnPreferenceChangeListener((preference, newValue) -> {
-                String selectedTimestamp = (String) newValue;
-                listTimestamp.setSummary(selectedTimestamp);
-                settingUtil.setTimestamp(selectedTimestamp);
-                return true;
-            });
+            if (listTimestamp != null) {
+                String[] listTimestampItems = {
+                        Timestamp.DYNAMIC.value,
+                        Timestamp.FORMAL.value
+                };
+                listTimestamp.setEntries(listTimestampItems);
+                listTimestamp.setEntryValues(listTimestampItems);
+                listTimestamp.setSummary(settingUtil.getTimestamp());
+                listTimestamp.setValue(settingUtil.getTimestamp());
+                listTimestamp.setOnPreferenceChangeListener((preference, newValue) -> {
+                    String selectedTimestamp = (String) newValue;
+                    listTimestamp.setSummary(selectedTimestamp);
+                    settingUtil.setTimestamp(selectedTimestamp);
+                    return true;
+                });
+            }
 
-            switchDynamicColors.setVisible(DynamicColors.isDynamicColorAvailable());
-            switchDynamicColors.setChecked(settingUtil.isDynamicColors());
-            switchDynamicColors.setOnPreferenceChangeListener((preference, isChecked) -> {
-                settingUtil.setDynamicColors((boolean) isChecked);
-                requireActivity().recreate();
-                return true;
-            });
+            if (switchDynamicColors != null) {
+                switchDynamicColors.setVisible(DynamicColors.isDynamicColorAvailable());
+                switchDynamicColors.setChecked(settingUtil.isDynamicColors());
+                switchDynamicColors.setOnPreferenceChangeListener((preference, isChecked) -> {
+                    settingUtil.setDynamicColors((boolean) isChecked);
+                    requireActivity().recreate();
+                    return true;
+                });
+            }
 
-            switchAppLock.setChecked(settingUtil.getPassword() != null);
-            switchAppLock.setOnPreferenceChangeListener((preference, newValue) -> {
-                if (settingUtil.getPassword() == null) {
-                    showSetAppLockDialog();
-                } else {
-                    showRemoveAppLockDialog();
-                }
-                return true;
-            });
+            if (switchScreenPrivacy != null) {
+                switchScreenPrivacy.setChecked(settingUtil.isScreenPrivacyEnabled());
+                switchScreenPrivacy.setOnPreferenceChangeListener((preference, isChecked) -> {
+                    settingUtil.setScreenPrivacy((boolean) isChecked);
+                    requireActivity().recreate();
+                    return true;
+                });
+            }
 
-            switchScreenPrivacy.setChecked(settingUtil.isScreenPrivacyEnabled());
-            switchScreenPrivacy.setOnPreferenceChangeListener((preference, isChecked) -> {
-                settingUtil.setScreenPrivacy((boolean) isChecked);
-                requireActivity().recreate();
-                return true;
-            });
+            if (switchAppLock != null) {
+                switchAppLock.setChecked(settingUtil.getPassword() != null);
 
-            appLicense.setOnPreferenceClickListener(preference -> {
-                showLicenseDialog();
-                return true;
-            });
+                // FIX (Switch state desynced): Returning `false` from the listener prevents
+                // the preference library from toggling the switch automatically before the user
+                // confirms. We then update the switch state manually only after confirmation.
+                switchAppLock.setOnPreferenceChangeListener((preference, newValue) -> {
+                    if (settingUtil.getPassword() == null) {
+                        showSetAppLockDialog();
+                    } else {
+                        showRemoveAppLockDialog();
+                    }
+                    return false; // We manage the checked state ourselves in the dialogs.
+                });
+            }
 
-            appVersion.setOnPreferenceClickListener(preference -> {
-                easterEggCounter++;
-                if (easterEggCounter == 7) {
-                    Toast.makeText(requireContext(), R.string.app_easter_egg, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            });
+            if (appLicense != null) {
+                appLicense.setOnPreferenceClickListener(preference -> {
+                    showLicenseDialog();
+                    return true;
+                });
+            }
+
+            if (appVersion != null) {
+                appVersion.setOnPreferenceClickListener(preference -> {
+                    easterEggCounter++;
+                    if (easterEggCounter == 7) {
+                        Toast.makeText(requireContext(), R.string.app_easter_egg, Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                });
+            }
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            if (thoughtRepository != null) {
+                thoughtRepository.close();
+            }
         }
 
         private void showSetAppLockDialog() {
@@ -253,7 +289,7 @@ public class SettingsActivity extends FaithfulActivity {
             AlertDialog appLockDialog = builder.create();
             appLockDialog.setOnShowListener(dialog -> {
                 appLockDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> {
-                    switchAppLock.setChecked(false);
+                    if (switchAppLock != null) switchAppLock.setChecked(false);
                     appLockDialog.dismiss();
                 });
 
@@ -274,7 +310,6 @@ public class SettingsActivity extends FaithfulActivity {
                     if (!password.equals(confirmPassword)) {
                         passwordText.setText("");
                         confirmPasswordText.setText("");
-
                         passwordLayout.setError(getString(R.string.field_app_password_must_match_error));
                         confirmPasswordLayout.setError(getString(R.string.field_app_password_must_match_error));
                         return;
@@ -289,10 +324,12 @@ public class SettingsActivity extends FaithfulActivity {
                     try {
                         String hashedPassword = PasswordUtil.hashPassword(password);
                         settingUtil.setPassword(hashedPassword);
+                        if (switchAppLock != null) switchAppLock.setChecked(true);
                         Toast.makeText(requireContext(), R.string.toast_app_lock_enabled, Toast.LENGTH_SHORT).show();
                         appLockDialog.dismiss();
                     } catch (Exception e) {
-                        Toast.makeText(requireContext(), R.string.toast_app_lock_enabled, Toast.LENGTH_SHORT).show();
+                        Log.e("SettingsFragment", "Failed to hash password", e);
+                        Toast.makeText(requireContext(), R.string.toast_app_lock_error, Toast.LENGTH_SHORT).show();
                     }
                 });
             });
@@ -304,9 +341,12 @@ public class SettingsActivity extends FaithfulActivity {
                     .setTitle(R.string.dialog_title_remove_app_lock)
                     .setMessage(R.string.dialog_message_remote_app_lock)
                     .setIcon(R.drawable.ic_warning)
-                    .setNegativeButton(R.string.dialog_button_close, (dialog, which) -> switchAppLock.setChecked(true))
+                    .setNegativeButton(R.string.dialog_button_close, (dialog, which) -> {
+                        if (switchAppLock != null) switchAppLock.setChecked(true);
+                    })
                     .setPositiveButton(R.string.dialog_button_remove, (dialog, which) -> {
                         settingUtil.setPassword(null);
+                        if (switchAppLock != null) switchAppLock.setChecked(false);
                         Toast.makeText(requireContext(), R.string.toast_app_lock_disabled, Toast.LENGTH_SHORT).show();
                     });
 
@@ -317,16 +357,16 @@ public class SettingsActivity extends FaithfulActivity {
         private void importJSON(Uri uri) {
             StringBuilder jsonBuilder = new StringBuilder();
 
-            try (Database database = new Database(requireContext())) {
+            try (Database database = new Database(requireContext());
+                 InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
+
                 SQLiteDatabase writableDatabase = database.getWritableDatabase();
-                InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     jsonBuilder.append(line);
                 }
-                bufferedReader.close();
 
                 JSONObject jsonImport = new JSONObject(jsonBuilder.toString());
                 JSONArray savingJsonArray = jsonImport.getJSONArray(Database.TABLE_THOUGHT);
@@ -340,18 +380,26 @@ public class SettingsActivity extends FaithfulActivity {
                         thoughtValues.put(Database.COLUMN_THOUGHT_ID, thoughtObject.getString(Database.COLUMN_THOUGHT_ID));
                         thoughtValues.put(Database.COLUMN_THOUGHT_CONTENT, thoughtObject.getString(Database.COLUMN_THOUGHT_CONTENT));
                         thoughtValues.put(Database.COLUMN_THOUGHT_TIMESTAMP, thoughtObject.getLong(Database.COLUMN_THOUGHT_TIMESTAMP));
-                        writableDatabase.insert(Database.TABLE_THOUGHT, null, thoughtValues);
+
+                        writableDatabase.insertWithOnConflict(
+                                Database.TABLE_THOUGHT,
+                                null,
+                                thoughtValues,
+                                SQLiteDatabase.CONFLICT_IGNORE
+                        );
                     }
 
                     writableDatabase.setTransactionSuccessful();
                     Toast.makeText(requireContext(), R.string.toast_import_successful, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Log.e("Import", "Something went wrong while importing thoughts", e);
+                    Toast.makeText(requireContext(), R.string.toast_import_failed, Toast.LENGTH_SHORT).show();
                 } finally {
                     writableDatabase.endTransaction();
                 }
             } catch (Exception e) {
                 Log.e("Import", "Something went wrong while importing", e);
+                Toast.makeText(requireContext(), R.string.toast_import_failed, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -369,42 +417,40 @@ public class SettingsActivity extends FaithfulActivity {
                 }
             } catch (Exception e) {
                 Log.e("Export", "Something went wrong when collecting thoughts", e);
+                Toast.makeText(requireContext(), R.string.toast_export_failed, Toast.LENGTH_SHORT).show();
+                return;
             }
 
+            JSONObject jsonExport = new JSONObject();
             try {
-                JSONObject jsonExport = new JSONObject();
                 jsonExport.put(Database.TABLE_THOUGHT, thoughtJsonArray);
+            } catch (Exception e) {
+                Log.e("Export", "Failed to build export JSON", e);
+                Toast.makeText(requireContext(), R.string.toast_export_failed, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                OutputStream outputStream = requireContext().getContentResolver().openOutputStream(uri);
+            try (OutputStream outputStream = requireContext().getContentResolver().openOutputStream(uri)) {
                 if (outputStream != null) {
                     outputStream.write(jsonExport.toString().getBytes());
-                    outputStream.close();
                 }
-
                 Toast.makeText(requireContext(), R.string.toast_export_successful, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 Log.e("Export", "Something went wrong when exporting", e);
+                Toast.makeText(requireContext(), R.string.toast_export_failed, Toast.LENGTH_SHORT).show();
             }
         }
 
         private void exportData() {
-            if (noThoughtsFound()) {
+            if (thoughtRepository.getAll().isEmpty()) {
                 Toast.makeText(requireContext(), R.string.toast_no_thoughts, Toast.LENGTH_SHORT).show();
             } else {
                 Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 exportIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 exportIntent.setType("application/json");
-                exportIntent.putExtra(Intent.EXTRA_TITLE, "thoughts.json");
+                exportIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.export_file_name));
                 exportDataLauncher.launch(exportIntent);
             }
-        }
-
-        private boolean noThoughtsFound() {
-            try (ThoughtRepository thoughtRepository = new ThoughtRepository(requireContext())) {
-                ArrayList<Thought> thoughts = new ArrayList<>(thoughtRepository.getAll());
-                if (thoughts.isEmpty()) return true;
-            }
-            return false;
         }
 
         private void importData() {
@@ -447,14 +493,15 @@ public class SettingsActivity extends FaithfulActivity {
             StringBuilder stringBuilder = new StringBuilder();
             AssetManager assetManager = requireContext().getAssets();
 
-            try (InputStream inputStream = assetManager.open("license.txt")) {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            try (InputStream inputStream = assetManager.open("license.txt");
+                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     stringBuilder.append(line).append("\n");
                 }
             } catch (IOException e) {
-                Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("SettingsFragment", "Failed to read license file", e);
+                Toast.makeText(requireContext(), R.string.toast_license_error, Toast.LENGTH_SHORT).show();
             }
             return stringBuilder.toString();
         }
