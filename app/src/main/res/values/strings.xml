@@ -94,4 +94,10 @@
     <string name="preference_app_source_code_title">Source Code</string>
     <string name="preference_app_source_code_summary">Check the Github repository and the README</string>
     <string name="preference_app_author">Author</string>
+
+    <string name="timeout_immediately">Immediately</string>
+    <string name="timeout_30_seconds">30 seconds</string>
+    <string name="timeout_1_minute">1 minute</string>
+    <string name="timeout_5_minutes">5 minutes</string>
+    <string name="timeout_15_minutes">15 minutes</string>
 </resources>
