@@ -17,21 +17,16 @@ public class SecureActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_secure);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         SettingUtil settingUtil = new SettingUtil(this);
         String passwordHash = settingUtil.getPassword();
 
-        if (passwordHash == null || passwordHash.isEmpty()) {
+        if (passwordHash == null) {
             startActivity(new Intent(this, MainActivity.class));
         } else {
-            startActivity(new Intent(this, LockActivity.class));
+            Intent lockIntent = new Intent(this, LockActivity.class);
+            lockIntent.putExtra(LockActivity.EXTRA_RETURN_CLASS, MainActivity.class.getName());
+            startActivity(lockIntent);
         }
         finish();
     }
