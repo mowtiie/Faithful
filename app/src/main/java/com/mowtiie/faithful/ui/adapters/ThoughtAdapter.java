@@ -29,7 +29,7 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
     public ThoughtAdapter(Context context, Listener listener, ArrayList<Thought> thoughts) {
         this.context = context;
         this.listener = listener;
-        this.thoughts = thoughts;
+        this.thoughts = new ArrayList<>(thoughts);
         this.settingUtil = new SettingUtil(context);
     }
 
@@ -39,10 +39,9 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
         void OnShareClick(int position);
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void search(ArrayList<Thought> searchedThoughts) {
-        this.thoughts = searchedThoughts;
-        notifyDataSetChanged();
+    public void updateList(ArrayList<Thought> newList) {
+        this.thoughts.clear();
+        this.thoughts.addAll(newList);
     }
 
     @NonNull
@@ -56,9 +55,27 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
     public void onBindViewHolder(@NonNull ThoughtAdapter.ViewHolder holder, int position) {
         Thought thought = thoughts.get(position);
         holder.bind(thought, settingUtil);
-        holder.itemView.setOnClickListener(v -> listener.OnClick(position));
-        holder.thoughtDelete.setOnClickListener(v -> listener.OnDeleteClick(position));
-        holder.thoughtShare.setOnClickListener(v -> listener.OnShareClick(position));
+
+        holder.itemView.setOnClickListener(v -> {
+            int currentPosition = holder.getBindingAdapterPosition();
+            if (currentPosition != RecyclerView.NO_ID) {
+                listener.OnClick(currentPosition);
+            }
+        });
+
+        holder.thoughtDelete.setOnClickListener(v -> {
+            int currentPosition = holder.getBindingAdapterPosition();
+            if (currentPosition != RecyclerView.NO_ID) {
+                listener.OnDeleteClick(currentPosition);
+            }
+        });
+
+        holder.thoughtShare.setOnClickListener(v -> {
+            int currentPosition = holder.getBindingAdapterPosition();
+            if (currentPosition != RecyclerView.NO_ID) {
+                listener.OnShareClick(currentPosition);
+            }
+        });
     }
 
     @Override

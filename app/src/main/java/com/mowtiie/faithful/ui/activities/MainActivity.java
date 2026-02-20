@@ -66,7 +66,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         allThoughts.sort(Thought.SORT_DESCENDING);
         displayedThoughts.addAll(allThoughts);
 
-        thoughtAdapter = new ThoughtAdapter(this, this, displayedThoughts);
+        thoughtAdapter = new ThoughtAdapter(this, this, new ArrayList<>(displayedThoughts));
 
         binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
         binding.thoughtsList.setLayoutManager(new LinearLayoutManager(this));
@@ -167,6 +167,8 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
         displayedThoughts.clear();
         displayedThoughts.addAll(allThoughts);
+
+        thoughtAdapter.updateList(displayedThoughts);
         diffResult.dispatchUpdatesTo(thoughtAdapter);
 
         binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
