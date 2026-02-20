@@ -23,4 +23,8 @@ public class LockUtil {
         }
         return (System.currentTimeMillis() - lastUsedTime) > LOCK_TIMEOUT;
     }
+
+    public void lock() {
+        lastUsedTime = 0;
+    }
 }

@@ -28,6 +28,7 @@ import com.mowtiie.faithful.data.thought.ThoughtRepository;
 import com.mowtiie.faithful.databinding.ActivityMainBinding;
 import com.mowtiie.faithful.ui.adapters.ThoughtAdapter;
 import com.mowtiie.faithful.util.DateTimeUtil;
+import com.mowtiie.faithful.util.LockUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +82,9 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_main, menu);
 
+        MenuItem lockItem = menu.findItem(R.id.lock);
+        lockItem.setVisible(settingUtil.getPassword() != null);
+
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
         if (searchView == null) return true;
@@ -122,6 +126,12 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
             sortThoughts(true);
         } else if (item.getItemId() == R.id.settings) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        } else if (item.getItemId() == R.id.lock) {
+            LockUtil.getInstance().lock();
+            Intent lockIntent = new Intent(this, LockActivity.class);
+            lockIntent.putExtra(LockActivity.EXTRA_RETURN_CLASS, MainActivity.class.getName());
+            lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(lockIntent);
         }
         return true;
     }
