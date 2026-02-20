@@ -230,16 +230,13 @@ public class SettingsActivity extends FaithfulActivity {
             if (switchAppLock != null) {
                 switchAppLock.setChecked(settingUtil.getPassword() != null);
 
-                // FIX (Switch state desynced): Returning `false` from the listener prevents
-                // the preference library from toggling the switch automatically before the user
-                // confirms. We then update the switch state manually only after confirmation.
                 switchAppLock.setOnPreferenceChangeListener((preference, newValue) -> {
                     if (settingUtil.getPassword() == null) {
                         showSetAppLockDialog();
                     } else {
                         showRemoveAppLockDialog();
                     }
-                    return false; // We manage the checked state ourselves in the dialogs.
+                    return false;
                 });
             }
 
