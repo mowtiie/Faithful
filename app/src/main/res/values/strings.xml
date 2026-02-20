@@ -52,6 +52,7 @@
     <string name="toast_app_lock_enabled">App lock has been enabled</string>
     <string name="toast_app_lock_disabled">App lock has been disabled</string>
     <string name="toast_notification_permission_denied">Notification permission denied</string>
+    <string name="toast_notification_permission_granted">Notification permission granted</string>
     <string name="toast_no_thoughts">No thoughts to export</string>
     <string name="toast_import_successful">Thoughts has been imported</string>
     <string name="toast_export_successful">Thoughts has been exported</string>

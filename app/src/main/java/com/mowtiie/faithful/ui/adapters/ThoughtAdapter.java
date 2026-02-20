@@ -18,13 +18,14 @@ import com.mowtiie.faithful.util.DateTimeUtil;
 import com.mowtiie.faithful.util.SettingUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHolder> {
 
     private final Context context;
     private final Listener listener;
     private final SettingUtil settingUtil;
-    private ArrayList<Thought> thoughts;
+    private final ArrayList<Thought> thoughts;
 
     public ThoughtAdapter(Context context, Listener listener, ArrayList<Thought> thoughts) {
         this.context = context;
@@ -34,14 +35,16 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
     }
 
     public interface Listener {
-        void OnClick(int position);
-        void OnDeleteClick(int position);
-        void OnShareClick(int position);
+        void OnClick(Thought thought);
+        void OnDeleteClick(Thought thought);
+        void OnShareClick(Thought thought);
     }
 
-    public void updateList(ArrayList<Thought> newList) {
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateList(List<Thought> newList) {
         this.thoughts.clear();
         this.thoughts.addAll(newList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -56,26 +59,9 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
         Thought thought = thoughts.get(position);
         holder.bind(thought, settingUtil);
 
-        holder.itemView.setOnClickListener(v -> {
-            int currentPosition = holder.getBindingAdapterPosition();
-            if (currentPosition != RecyclerView.NO_ID) {
-                listener.OnClick(currentPosition);
-            }
-        });
-
-        holder.thoughtDelete.setOnClickListener(v -> {
-            int currentPosition = holder.getBindingAdapterPosition();
-            if (currentPosition != RecyclerView.NO_ID) {
-                listener.OnDeleteClick(currentPosition);
-            }
-        });
-
-        holder.thoughtShare.setOnClickListener(v -> {
-            int currentPosition = holder.getBindingAdapterPosition();
-            if (currentPosition != RecyclerView.NO_ID) {
-                listener.OnShareClick(currentPosition);
-            }
-        });
+        holder.itemView.setOnClickListener(v -> listener.OnClick(thought));
+        holder.thoughtDelete.setOnClickListener(v -> listener.OnDeleteClick(thought));
+        holder.thoughtShare.setOnClickListener(v -> listener.OnShareClick(thought));
     }
 
     @Override
@@ -105,10 +91,8 @@ public class ThoughtAdapter extends RecyclerView.Adapter<ThoughtAdapter.ViewHold
             } else {
                 timeStamp = DateTimeUtil.getStringDateTime(thought.getTimestamp());
             }
-            String content = thought.getContent();
-
             thoughtTimeStamp.setText(timeStamp);
-            thoughtContent.setText(content);
+            thoughtContent.setText(thought.getContent());
         }
     }
 }

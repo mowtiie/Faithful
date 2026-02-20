@@ -1,6 +1,5 @@
 package com.mowtiie.faithful.ui.activities;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -67,16 +65,11 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         displayedThoughts.addAll(allThoughts);
 
         thoughtAdapter = new ThoughtAdapter(this, this, new ArrayList<>(displayedThoughts));
-
         binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
         binding.thoughtsList.setLayoutManager(new LinearLayoutManager(this));
         binding.thoughtsList.setAdapter(thoughtAdapter);
 
-        binding.toolbar.setNavigationOnClickListener(v -> {
-            Intent settingIntent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(settingIntent);
-        });
-
+        binding.toolbar.setNavigationOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
         binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
 
         if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
@@ -91,8 +84,8 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-
         if (searchView == null) return true;
+
         searchView.setQueryHint(getString(R.string.hint_toolbar_search));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -116,8 +109,10 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
                 filteredList.add(item);
             }
         }
-
-        updateDisplayedList(filteredList);
+        displayedThoughts.clear();
+        displayedThoughts.addAll(filteredList);
+        thoughtAdapter.updateList(new ArrayList<>(displayedThoughts));
+        binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -127,85 +122,32 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         } else if (item.getItemId() == R.id.sort_oldest) {
             sortThoughts(true);
         }
-
         return true;
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void sortThoughts(boolean isAscending) {
         allThoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
         displayedThoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
-        thoughtAdapter.notifyDataSetChanged();
+        thoughtAdapter.updateList(new ArrayList<>(displayedThoughts));
     }
 
     private void refreshList() {
         List<Thought> freshList = thoughtRepository.getAll();
         freshList.sort(Thought.SORT_DESCENDING);
 
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() { return allThoughts.size(); }
-
-            @Override
-            public int getNewListSize() { return freshList.size(); }
-
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return allThoughts.get(oldItemPosition).getId()
-                        .equals(freshList.get(newItemPosition).getId());
-            }
-
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                return allThoughts.get(oldItemPosition).getContent()
-                        .equals(freshList.get(newItemPosition).getContent());
-            }
-        });
-
         allThoughts.clear();
         allThoughts.addAll(freshList);
-
         displayedThoughts.clear();
-        displayedThoughts.addAll(allThoughts);
+        displayedThoughts.addAll(freshList);
 
-        thoughtAdapter.updateList(displayedThoughts);
-        diffResult.dispatchUpdatesTo(thoughtAdapter);
+        thoughtAdapter.updateList(new ArrayList<>(displayedThoughts));
 
         binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
         binding.thoughtsList.setVisibility(displayedThoughts.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
-    private void updateDisplayedList(List<Thought> newList) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() { return displayedThoughts.size(); }
-
-            @Override
-            public int getNewListSize() { return newList.size(); }
-
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return displayedThoughts.get(oldItemPosition).getId()
-                        .equals(newList.get(newItemPosition).getId());
-            }
-
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                return displayedThoughts.get(oldItemPosition).getContent()
-                        .equals(newList.get(newItemPosition).getContent());
-            }
-        });
-
-        displayedThoughts.clear();
-        displayedThoughts.addAll(newList);
-        diffResult.dispatchUpdatesTo(thoughtAdapter);
-
-        binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
     private void showNewThoughtDialog() {
         View newThoughtDialogView = LayoutInflater.from(this).inflate(R.layout.dialog_new_thought, null, false);
-
         TextInputLayout thoughtContentLayout = newThoughtDialogView.findViewById(R.id.field_thought_content_layout);
         TextInputEditText thoughtContentText = newThoughtDialogView.findViewById(R.id.field_thought_content_text);
 
@@ -217,29 +159,29 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
                 .setPositiveButton(R.string.dialog_button_confirm, null);
 
         AlertDialog newThoughtDialog = builder.create();
-        newThoughtDialog.setOnShowListener(dialog -> newThoughtDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String thoughtContent = Objects.requireNonNull(thoughtContentText.getText()).toString().trim();
-            if (thoughtContent.isEmpty()) {
-                thoughtContentLayout.setError(getString(R.string.field_thought_content_empty_error));
-                return;
-            }
+        newThoughtDialog.setOnShowListener(dialog ->
+                newThoughtDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    String thoughtContent = Objects.requireNonNull(thoughtContentText.getText()).toString().trim();
+                    if (thoughtContent.isEmpty()) {
+                        thoughtContentLayout.setError(getString(R.string.field_thought_content_empty_error));
+                        return;
+                    }
 
-            Thought thought = new Thought();
-            thought.setId(UUID.randomUUID().toString());
-            thought.setContent(thoughtContent);
-            thought.setTimestamp(System.currentTimeMillis());
-            thoughtRepository.add(thought);
-            refreshList();
-            newThoughtDialog.dismiss();
-        }));
+                    Thought thought = new Thought();
+                    thought.setId(UUID.randomUUID().toString());
+                    thought.setContent(thoughtContent);
+                    thought.setTimestamp(System.currentTimeMillis());
+                    thoughtRepository.add(thought);
+                    refreshList();
+                    newThoughtDialog.dismiss();
+                    binding.thoughtsList.post(() -> binding.thoughtsList.smoothScrollToPosition(0));
+                }));
         newThoughtDialog.show();
 
         thoughtContentText.requestFocus();
         thoughtContentText.postDelayed(() -> {
-            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (inputMethodManager != null) {
-                inputMethodManager.showSoftInput(thoughtContentText, InputMethodManager.SHOW_IMPLICIT);
-            }
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) imm.showSoftInput(thoughtContentText, InputMethodManager.SHOW_IMPLICIT);
         }, 100);
     }
 
@@ -253,61 +195,46 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
     }
 
     @Override
-    public void OnClick(int position) {
-        Thought thought = displayedThoughts.get(position);
-        String timestamp;
-        if (settingUtil.getTimestamp().equals("Dynamic")) {
-            timestamp = DateTimeUtil.getPrettyStringDateTime(thought.getTimestamp());
-        } else {
-            timestamp = DateTimeUtil.getStringDateTime(thought.getTimestamp());
-        }
+    public void OnClick(Thought thought) {
+        String timestamp = settingUtil.getTimestamp().equals("Dynamic")
+                ? DateTimeUtil.getPrettyStringDateTime(thought.getTimestamp())
+                : DateTimeUtil.getStringDateTime(thought.getTimestamp());
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(timestamp)
                 .setIcon(R.drawable.ic_thought)
                 .setMessage(thought.getContent())
-                .setPositiveButton(R.string.dialog_button_close, null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+                .setPositiveButton(R.string.dialog_button_close, null)
+                .create().show();
     }
 
     @Override
-    public void OnDeleteClick(int position) {
-        Thought thought = displayedThoughts.get(position);
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+    public void OnDeleteClick(Thought thought) {
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_title_delete_thought)
                 .setIcon(R.drawable.ic_delete)
                 .setMessage(R.string.dialog_message_delete_thought)
                 .setNegativeButton(R.string.dialog_button_cancel, null)
-                .setPositiveButton(R.string.dialog_button_delete, (dialogInterface, i) -> {
+                .setPositiveButton(R.string.dialog_button_delete, (dialog, i) -> {
                     thoughtRepository.delete(thought.getId());
                     refreshList();
-                });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+                })
+                .create().show();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        if (intent.getBooleanExtra("OPEN_DIALOG", false)) {
-            showNewThoughtDialog();
-        }
+        if (intent.getBooleanExtra("OPEN_DIALOG", false)) showNewThoughtDialog();
     }
 
     @Override
-    public void OnShareClick(int position) {
-        Thought thought = displayedThoughts.get(position);
-
+    public void OnShareClick(Thought thought) {
         Intent sendIntent = new Intent();
         sendIntent.setType("text/plain");
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, thought.getContent());
-
-        Intent shareIntent = Intent.createChooser(sendIntent, null);
-        startActivity(shareIntent);
+        startActivity(Intent.createChooser(sendIntent, null));
     }
 }
