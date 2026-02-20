@@ -1,5 +1,6 @@
 package com.mowtiie.faithful.service;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.service.quicksettings.TileService;
@@ -18,6 +19,7 @@ public class QuickThoughtTileService extends TileService {
         super.onStartListening();
     }
 
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     @Override
     public void onClick() {
         super.onClick();
