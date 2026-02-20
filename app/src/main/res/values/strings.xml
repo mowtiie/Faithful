@@ -43,6 +43,7 @@
     <string name="dialog_message_delete_thought">You are about to delete this thought, this action cannot be undone.</string>
     <string name="dialog_message_remote_app_lock">You are about to disable app lock, this action may leave your thoughts exposed and unprotected.</string>
 
+    <string name="toast_unlock_error">Something went wrong when trying to unlock</string>
     <string name="toast_license_error">Something went wrong when trying to load the license file</string>
     <string name="toast_export_failed">Something went wrong when exporting thoughts</string>
     <string name="toast_import_failed">Something went wrong when importing thoughts</string>
