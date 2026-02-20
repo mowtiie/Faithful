@@ -25,4 +25,21 @@
                 android:title="@string/menu_sort_oldest"/>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/overflow"
+        android:title="@string/menu_overflow"
+        android:icon="@drawable/ic_overflow"
+        app:showAsAction="ifRoom">
+
+        <menu>
+            <item
+                android:id="@+id/lock"
+                android:title="@string/menu_lock"/>
+
+            <item
+                android:id="@+id/settings"
+                android:title="@string/menu_settings"/>
+        </menu>
+    </item>
 </menu>

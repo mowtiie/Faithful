@@ -69,7 +69,6 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         binding.thoughtsList.setLayoutManager(new LinearLayoutManager(this));
         binding.thoughtsList.setAdapter(thoughtAdapter);
 
-        binding.toolbar.setNavigationOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
         binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
 
         if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
@@ -121,6 +120,8 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
             sortThoughts(false);
         } else if (item.getItemId() == R.id.sort_oldest) {
             sortThoughts(true);
+        } else if (item.getItemId() == R.id.settings) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         }
         return true;
     }
