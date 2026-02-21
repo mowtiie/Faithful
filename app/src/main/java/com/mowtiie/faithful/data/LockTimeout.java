@@ -1,28 +1,21 @@
 package com.mowtiie.faithful.data;
 
-import com.mowtiie.faithful.R;
-
 public enum LockTimeout {
 
-    IMMEDIATELY(0, R.string.timeout_immediately),
-    SECONDS_30(30_000, R.string.timeout_30_seconds),
-    MINUTE_1(60_000, R.string.timeout_1_minute),
-    MINUTES_5(300_000, R.string.timeout_5_minutes),
-    MINUTES_15(900_000, R.string.timeout_15_minutes);
+    IMMEDIATELY("Immediately", 0),
+    SECONDS_15("15 seconds", 15000),
+    SECONDS_30("30 seconds", 30000),
+    MINUTE_1("1 minute", 60000),
+    MINUTES_5("5 minutes", 300000),
+    MINUTES_15("15 minutes", 900000),
+    MINUTES_30("30 minutes", 1800000),
+    HOUR_1("1 hour", 3600000);
 
+    public final String label;
     public final long milliseconds;
-    public final int label;
 
-    LockTimeout(long milliseconds, int label) {
-        this.milliseconds = milliseconds;
+    LockTimeout(String label, long milliseconds) {
         this.label = label;
-    }
-
-    public static LockTimeout fromName(String name) {
-        try {
-            return valueOf(name);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            return SECONDS_30;
-        }
+        this.milliseconds = milliseconds;
     }
 }
