@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ import com.mowtiie.faithful.util.LockUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -45,8 +47,10 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     private ArrayList<Thought> allThoughts;
     private ArrayList<Thought> displayedThoughts;
-
     private ThoughtAdapter thoughtAdapter;
+
+    private Long selectedFilterDate = null;
+    private String currentSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,28 +59,30 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+        thoughtRepository = new ThoughtRepository(this);
         allThoughts = new ArrayList<>();
         displayedThoughts = new ArrayList<>();
-        thoughtRepository = new ThoughtRepository(this);
-        allThoughts.addAll(thoughtRepository.getAll());
-        allThoughts.sort(Thought.SORT_DESCENDING);
-        displayedThoughts.addAll(allThoughts);
 
-        thoughtAdapter = new ThoughtAdapter(this, this, new ArrayList<>(displayedThoughts));
-        binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
+        thoughtAdapter = new ThoughtAdapter(this, this, displayedThoughts);
         binding.thoughtsList.setLayoutManager(new LinearLayoutManager(this));
         binding.thoughtsList.setAdapter(thoughtAdapter);
 
+        refreshList();
+
         binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
+
         binding.undoFilter.setOnClickListener(v -> {
-            binding.undoFilter.setVisibility(View.GONE);
+            selectedFilterDate = null;
+            binding.undoFilter.hide();
             refreshList();
+            Toast.makeText(this, "Filter cleared", Toast.LENGTH_SHORT).show();
         });
 
         if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
@@ -86,63 +92,49 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
 
         MenuItem lockItem = menu.findItem(R.id.lock);
         lockItem.setVisible(settingUtil.getPassword() != null);
 
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-        if (searchView == null) return true;
+        if (searchView != null) {
+            searchView.setQueryHint(getString(R.string.hint_toolbar_search));
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) { return false; }
 
-        searchView.setQueryHint(getString(R.string.hint_toolbar_search));
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                searchThoughts(newText);
-                return true;
-            }
-        });
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    currentSearchQuery = newText;
+                    applyFilters();
+                    return true;
+                }
+            });
+        }
         return true;
     }
 
-    private void searchThoughts(String text) {
-        ArrayList<Thought> filteredList = new ArrayList<>();
-        for (Thought item : allThoughts) {
-            if (item.getContent().toLowerCase().contains(text.toLowerCase())) {
-                filteredList.add(item);
+    private void applyFilters() {
+        ArrayList<Thought> results = new ArrayList<>();
+
+        List<Thought> source = (selectedFilterDate != null)
+                ? thoughtRepository.getByDate(selectedFilterDate)
+                : allThoughts;
+
+        for (Thought item : source) {
+            if (item.getContent().toLowerCase().contains(currentSearchQuery.toLowerCase())) {
+                results.add(item);
             }
         }
+
         displayedThoughts.clear();
-        displayedThoughts.addAll(filteredList);
+        displayedThoughts.addAll(results);
+        displayedThoughts.sort(Thought.SORT_DESCENDING);
+
         thoughtAdapter.updateList(new ArrayList<>(displayedThoughts));
         binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.sort_latest) {
-            sortThoughts(false);
-        } else if (item.getItemId() == R.id.sort_oldest) {
-            sortThoughts(true);
-        } else if (item.getItemId() == R.id.settings) {
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-        } else if (item.getItemId() == R.id.lock) {
-            LockUtil.getInstance().lock();
-            Intent lockIntent = new Intent(this, LockActivity.class);
-            lockIntent.putExtra(LockActivity.EXTRA_RETURN_CLASS, MainActivity.class.getName());
-            lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(lockIntent);
-        } else if (item.getItemId() == R.id.filter_date) {
-            showFilterByDateDialog();
-        }
-        return true;
     }
 
     private void showFilterByDateDialog() {
@@ -151,81 +143,81 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                 .build();
 
-        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
-
         datePicker.addOnPositiveButtonClickListener(selection -> {
-            ArrayList<Thought> filtered = thoughtRepository.getByDate(selection);
-            thoughtAdapter.updateList(new ArrayList<>(filtered));
-            binding.undoFilter.setVisibility(View.VISIBLE);
-            binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
+            selectedFilterDate = selection;
+            applyFilters();
+            binding.undoFilter.show();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            Toast.makeText(this, "Filtering by: " + sdf.format(new Date(selection)), Toast.LENGTH_SHORT).show();
         });
+
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+    }
+
+    private void refreshList() {
+        allThoughts.clear();
+        allThoughts.addAll(thoughtRepository.getAll());
+        applyFilters();
     }
 
     private void sortThoughts(boolean isAscending) {
-        allThoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
         displayedThoughts.sort(isAscending ? Thought.SORT_ASCENDING : Thought.SORT_DESCENDING);
         thoughtAdapter.updateList(new ArrayList<>(displayedThoughts));
     }
 
-    private void refreshList() {
-        List<Thought> freshList = thoughtRepository.getAll();
-        freshList.sort(Thought.SORT_DESCENDING);
-
-        allThoughts.clear();
-        allThoughts.addAll(freshList);
-        displayedThoughts.clear();
-        displayedThoughts.addAll(freshList);
-
-        thoughtAdapter.updateList(new ArrayList<>(displayedThoughts));
-        binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.sort_latest) {
+            sortThoughts(false);
+        } else if (id == R.id.sort_oldest) {
+            sortThoughts(true);
+        } else if (id == R.id.settings) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        } else if (id == R.id.lock) {
+            LockUtil.getInstance().lock();
+            Intent lockIntent = new Intent(this, LockActivity.class);
+            lockIntent.putExtra(LockActivity.EXTRA_RETURN_CLASS, MainActivity.class.getName());
+            lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(lockIntent);
+        } else if (id == R.id.filter_date) {
+            showFilterByDateDialog();
+        }
+        return true;
     }
 
     private void showNewThoughtDialog() {
-        View newThoughtDialogView = LayoutInflater.from(this).inflate(R.layout.dialog_new_thought, null, false);
-        TextInputLayout thoughtContentLayout = newThoughtDialogView.findViewById(R.id.field_thought_content_layout);
-        TextInputEditText thoughtContentText = newThoughtDialogView.findViewById(R.id.field_thought_content_text);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_new_thought, null, false);
+        TextInputLayout layout = view.findViewById(R.id.field_thought_content_layout);
+        TextInputEditText editText = view.findViewById(R.id.field_thought_content_text);
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_new_thought)
                 .setIcon(R.drawable.ic_thought)
-                .setView(newThoughtDialogView)
+                .setView(view)
                 .setNegativeButton(R.string.dialog_button_cancel, null)
-                .setPositiveButton(R.string.dialog_button_confirm, null);
-
-        AlertDialog newThoughtDialog = builder.create();
-        newThoughtDialog.setOnShowListener(dialog ->
-                newThoughtDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-                    String thoughtContent = Objects.requireNonNull(thoughtContentText.getText()).toString().trim();
-                    if (thoughtContent.isEmpty()) {
-                        thoughtContentLayout.setError(getString(R.string.field_thought_content_empty_error));
+                .setPositiveButton(R.string.dialog_button_confirm, (dialog, which) -> {
+                    String content = Objects.requireNonNull(editText.getText()).toString().trim();
+                    if (content.isEmpty()) {
+                        layout.setError(getString(R.string.field_thought_content_empty_error));
                         return;
                     }
-
                     Thought thought = new Thought();
                     thought.setId(UUID.randomUUID().toString());
-                    thought.setContent(thoughtContent);
+                    thought.setContent(content);
                     thought.setTimestamp(System.currentTimeMillis());
                     thoughtRepository.add(thought);
+
                     refreshList();
-                    newThoughtDialog.dismiss();
                     binding.thoughtsList.post(() -> binding.thoughtsList.smoothScrollToPosition(0));
-                }));
-        newThoughtDialog.show();
+                }).show();
 
-        thoughtContentText.requestFocus();
-        thoughtContentText.postDelayed(() -> {
+        editText.requestFocus();
+        editText.postDelayed(() -> {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) imm.showSoftInput(thoughtContentText, InputMethodManager.SHOW_IMPLICIT);
+            if (imm != null) imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
         }, 100);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (thoughtRepository != null) {
-            thoughtRepository.close();
-        }
-        binding = null;
     }
 
     @Override
@@ -239,7 +231,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
                 .setIcon(R.drawable.ic_thought)
                 .setMessage(thought.getContent())
                 .setPositiveButton(R.string.dialog_button_close, null)
-                .create().show();
+                .show();
     }
 
     @Override
@@ -252,23 +244,21 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
                 .setPositiveButton(R.string.dialog_button_delete, (dialog, i) -> {
                     thoughtRepository.delete(thought.getId());
                     refreshList();
-                })
-                .create().show();
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        if (intent.getBooleanExtra("OPEN_DIALOG", false)) showNewThoughtDialog();
+                }).show();
     }
 
     @Override
     public void OnShareClick(Thought thought) {
-        Intent sendIntent = new Intent();
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
         sendIntent.setType("text/plain");
-        sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, thought.getContent());
         startActivity(Intent.createChooser(sendIntent, null));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (thoughtRepository != null) thoughtRepository.close();
+        binding = null;
     }
 }
