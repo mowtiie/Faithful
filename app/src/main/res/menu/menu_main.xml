@@ -38,6 +38,10 @@
                 android:title="@string/menu_lock"/>
 
             <item
+                android:id="@+id/filter_date"
+                android:title="@string/menu_filter_date"/>
+
+            <item
                 android:id="@+id/settings"
                 android:title="@string/menu_settings"/>
         </menu>
