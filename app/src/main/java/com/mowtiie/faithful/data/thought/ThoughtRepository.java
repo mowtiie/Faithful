@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.mowtiie.faithful.data.Database;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ThoughtRepository extends Database {
@@ -31,6 +32,36 @@ public class ThoughtRepository extends Database {
         SQLiteDatabase sqLiteDatabase = getWritableDatabase();
         sqLiteDatabase.delete(TABLE_THOUGHT, COLUMN_THOUGHT_ID + " = ?", new String[]{thoughtId});
         sqLiteDatabase.close();
+    }
+
+    public ArrayList<Thought> getByDate(long selectedDate) {
+        ArrayList<Thought> thoughtList = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        long oneDayInMs = 24 * 60 * 60 * 1000;
+        long endOfDayMillis = selectedDate + oneDayInMs;
+
+        String selection = COLUMN_THOUGHT_TIMESTAMP + " >= ? AND " + COLUMN_THOUGHT_TIMESTAMP + " < ?";
+        String[] selectionArgs = {
+                String.valueOf(selectedDate),
+                String.valueOf(endOfDayMillis)
+        };
+
+        String orderBy = COLUMN_THOUGHT_TIMESTAMP + " DESC";
+        try (Cursor cursor = db.query(TABLE_THOUGHT, null, selection, selectionArgs, null, null, orderBy)) {
+            int idIndex = cursor.getColumnIndexOrThrow(COLUMN_THOUGHT_ID);
+            int contentIndex = cursor.getColumnIndexOrThrow(COLUMN_THOUGHT_CONTENT);
+            int timeIndex = cursor.getColumnIndexOrThrow(COLUMN_THOUGHT_TIMESTAMP);
+
+            while (cursor.moveToNext()) {
+                thoughtList.add(new Thought(
+                        cursor.getString(idIndex),
+                        cursor.getString(contentIndex),
+                        cursor.getLong(timeIndex)
+                ));
+            }
+        }
+        return thoughtList;
     }
 
     public ArrayList<Thought> getAll() {
