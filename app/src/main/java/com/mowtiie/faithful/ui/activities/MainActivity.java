@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -30,8 +31,10 @@ import com.mowtiie.faithful.ui.adapters.ThoughtAdapter;
 import com.mowtiie.faithful.util.DateTimeUtil;
 import com.mowtiie.faithful.util.LockUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -71,6 +74,10 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         binding.thoughtsList.setAdapter(thoughtAdapter);
 
         binding.writeThought.setOnClickListener(v -> showNewThoughtDialog());
+        binding.undoFilter.setOnClickListener(v -> {
+            binding.undoFilter.setVisibility(View.GONE);
+            refreshList();
+        });
 
         if (getIntent().getBooleanExtra("QUICK_THOUGHT", false)) {
             showNewThoughtDialog();
@@ -132,8 +139,26 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
             lockIntent.putExtra(LockActivity.EXTRA_RETURN_CLASS, MainActivity.class.getName());
             lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(lockIntent);
+        } else if (item.getItemId() == R.id.filter_date) {
+            showFilterByDateDialog();
         }
         return true;
+    }
+
+    private void showFilterByDateDialog() {
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            ArrayList<Thought> filtered = thoughtRepository.getByDate(selection);
+            thoughtAdapter.updateList(new ArrayList<>(filtered));
+            binding.undoFilter.setVisibility(View.VISIBLE);
+            binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
+        });
     }
 
     private void sortThoughts(boolean isAscending) {
@@ -152,9 +177,7 @@ public class MainActivity extends FaithfulActivity implements ThoughtAdapter.Lis
         displayedThoughts.addAll(freshList);
 
         thoughtAdapter.updateList(new ArrayList<>(displayedThoughts));
-
         binding.emptyIndicator.setVisibility(displayedThoughts.isEmpty() ? View.VISIBLE : View.GONE);
-        binding.thoughtsList.setVisibility(displayedThoughts.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     private void showNewThoughtDialog() {
